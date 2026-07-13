@@ -46,7 +46,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--l)
 .card-h{padding:14px 16px;border-bottom:1px solid var(--gl);display:flex;align-items:center;justify-content:space-between}
 .card-h h3{font-size:15px;font-weight:600;color:var(--dk)}
 .card-b{padding:14px 16px}
-.lst{list-style:none}
 .lst-i{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--gl);transition:background 0.2s}
 .lst-i:last-child{border-bottom:none}
 .lst-i:hover{background:var(--l)}
@@ -69,33 +68,20 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--l)
 .bnav a{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px;text-decoration:none;color:var(--g);font-size:10px;font-weight:500;transition:color 0.2s;gap:4px}
 .bnav a.active{color:var(--p)}
 .bnav a svg{width:22px;height:22px}
-.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:400;display:none;align-items:flex-end;justify-content:center}
-.modal.show{display:flex}
-.modal-c{background:var(--w2);width:100%;max-width:500px;max-height:85vh;border-radius:14px 14px 0 0;transform:translateY(100%);transition:transform 0.3s ease;overflow:hidden;display:flex;flex-direction:column}
-.modal.show .modal-c{transform:translateY(0)}
-.modal-h{padding:16px 20px;border-bottom:1px solid var(--gl);display:flex;align-items:center;justify-content:space-between}
-.modal-h h3{font-size:16px;font-weight:600}
-.modal-x{background:none;border:none;font-size:22px;cursor:pointer;color:var(--g);padding:4px}
-.modal-b{padding:20px;overflow-y:auto;flex:1}
-.modal-f{padding:14px 20px;border-top:1px solid var(--gl);display:flex;gap:10px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:13px;font-weight:600;color:var(--dk);margin-bottom:6px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;border:2px solid var(--gl);border-radius:10px;font-size:14px;background:#fafafa;color:var(--dk);outline:none;transition:all 0.3s;font-family:inherit}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--p);background:var(--w2);box-shadow:0 0 0 3px rgba(26,107,60,0.1)}
-.srch{position:relative;margin-bottom:14px}
-.srch input{width:100%;padding:11px 14px 11px 40px;border:2px solid var(--gl);border-radius:10px;font-size:14px;background:var(--w2);outline:none;transition:all 0.3s}
-.srch input:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(26,107,60,0.1)}
-.sr-ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--g)}
-.empty{text-align:center;padding:40px 20px;color:var(--g)}
-.empty svg{width:48px;height:48px;margin-bottom:12px;opacity:0.4}
-.empty p{font-size:14px}
-.hier{display:flex;align-items:center;gap:8px;padding:10px 0;font-size:13px;color:var(--dk)}
-.hier .hier-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.hier .hier-line{width:2px;height:20px;background:var(--gl);margin-left:4px}
 .loader{display:flex;justify-content:center;padding:40px}
 .spinner{width:30px;height:30px;border:3px solid var(--gl);border-top-color:var(--p);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(min-width:768px){.stats{grid-template-columns:repeat(4,1fr)}.modal{align-items:center}.modal-c{border-radius:14px;max-height:80vh}.bnav{display:none}}
+
+/* Filter Tabs & Management Elements */
+.filter-tabs{display:flex;gap:8px;margin-bottom:14px}
+.filter-btn{flex:1;padding:8px;border:1px solid var(--gl);background:var(--w2);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:var(--g);transition:all 0.2s}
+.filter-btn.active{background:var(--p);color:var(--w2);border-color:var(--p)}
+.form-grp-inline{margin-bottom:12px}
+.form-grp-inline label{font-size:12px;font-weight:600;color:var(--g);display:block;margin-bottom:4px}
+.form-grp-inline input{width:100%;padding:10px;border:2px solid var(--gl);border-radius:8px;outline:none;font-size:14px}
+.form-grp-inline input:focus{border-color:var(--p)}
+
+@media(min-width:768px){.stats{grid-template-columns:repeat(4,1fr)}.bnav{display:none}}
 </style>
 </head>
 <body>
@@ -140,69 +126,73 @@ const db=firebase.firestore();
 
 function toggleSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sbOverlay').classList.add('show')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('show')}
-function openModal(id){document.getElementById(id).classList.add('show')}
-function closeModal(id){document.getElementById(id).classList.remove('show')}
-function showAlert(msg,type){const d=document.createElement('div');d.className='alert a-'+type;d.innerHTML='<span>'+msg+'</span>';const m=document.querySelector('.main');if(m){m.insertBefore(d,m.firstChild);setTimeout(()=>d.remove(),4000)}}
-function confirmDel(msg){return confirm(msg||'Are you sure you want to delete?')}
-function searchItems(inputId,cssClass){const v=document.getElementById(inputId).value.toLowerCase();document.querySelectorAll('.'+cssClass).forEach(i=>{i.style.display=i.textContent.toLowerCase().includes(v)?'flex':'none'})}
 function getCurrentUser(){const s=localStorage.getItem('ngoUser');return s?JSON.parse(s):null}
-function saveUser(user){localStorage.setItem('ngoUser',JSON.stringify(user))}
-function logoutUser(){auth.signOut();localStorage.removeItem('ngoUser');window.location.href='index.html'}
 function requireAuth(allowedRoles){const u=getCurrentUser();if(!u||!allowedRoles.includes(u.role)){window.location.href='index.html';return null}return u}
-
-async function addDoc(col,data){return await db.collection(col).add({...data,createdAt:firebase.firestore.FieldValue.serverTimestamp()})}
-async function updateDoc(col,id,data){return await db.collection(col).doc(id).update({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})}
-async function deleteDoc(col,id){return await db.collection(col).doc(id).delete()}
-async function getDocs(col,filters){let q=db.collection(col);if(filters){filters.forEach(f=>{q=q.where(f.field,f.op,f.value)})}return await q.get()}
-async function getDocById(col,id){const d=await db.collection(col).doc(id).get();return d.exists?{id:d.id,...d.data()}:null}
 
 function getSidebarHTML(role){
 const menus={
+super_admin:[
+{label:'Dashboard',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',href:'dashboard.html',active:true},
+{label:'Approvals',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',href:'approvals.html'}
+],
 division_head:[
 {label:'Dashboard',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',href:'dashboard.html',active:true},
 {label:'Districts',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21V11h6v10"/></svg>',href:'districts.html'},
 {label:'Areas',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 6 8 12 8 12s8-6 8-12a8 8 0 00-8-8z"/></svg>',href:'areas.html'},
-{label:'Zeli Halqas',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',href:'zeli-halqas.html'},
-{label:'Departments',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>',href:'departments.html'},
 {label:'Approvals',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',href:'approvals.html'}
 ],
 district_head:[
 {label:'Dashboard',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',href:'dashboard.html',active:true},
 {label:'Areas',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 6 8 12 8 12s8-6 8-12a8 8 0 00-8-8z"/></svg>',href:'areas.html'},
-{label:'Zeli Halqas',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',href:'zeli-halqas.html'},
-{label:'Approvals',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',href:'approvals.html'}
-],
-area_head:[
-{label:'Dashboard',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',href:'dashboard.html',active:true},
-{label:'Zeli Halqas',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',href:'zeli-halqas.html'},
-{label:'Approvals',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',href:'approvals.html'}
+{label:'My Submissions',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',href:'approvals.html'}
 ]
 };
-return(menus[role]||menus.area_head).map(m=>'<li><a href="'+m.href+'" class="'+(m.active?'active':'')+'">'+m.icon+'<span>'+m.label+'</span></a></li>').join('');
+return(menus[role]||menus.district_head).map(m=>'<li><a href="'+m.href+'" class="'+(m.active?'active':'')+'">'+m.icon+'<span>'+m.label+'</span></a></li>').join('');
 }
 
-function getBottomNavHTML(role){
-const navs={
-division_head:[
-{label:'Home',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',href:'dashboard.html',active:true},
-{label:'Districts',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21V11h6v10"/></svg>',href:'districts.html'},
-{label:'Approvals',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',href:'approvals.html'},
-{label:'More',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>',href:'#',onclick:'toggleSidebar()'}
-],
-district_head:[
-{label:'Home',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',href:'dashboard.html',active:true},
-{label:'Areas',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 6 8 12 8 12s8-6 8-12a8 8 0 00-8-8z"/></svg>',href:'areas.html'},
-{label:'Approvals',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',href:'approvals.html'},
-{label:'More',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>',href:'#',onclick:'toggleSidebar()'}
-],
-area_head:[
-{label:'Home',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',href:'dashboard.html',active:true},
-{label:'Halqas',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',href:'zeli-halqas.html'},
-{label:'Approvals',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',href:'approvals.html'},
-{label:'More',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>',href:'#',onclick:'toggleSidebar()'}
-]
-};
-return(navs[role]||navs.area_head).map(n=>'<a href="'+n.href+'" class="'+(n.active?'active':'')+'" '+(n.onclick?'onclick="'+n.onclick+';return false"':'')+'>'+n.icon+'<span>'+n.label+'</span></a>').join('');
+function filterDashboardList(status) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    if(event && event.target) event.target.classList.add('active');
+    
+    document.querySelectorAll('.lst-i').forEach(item => {
+        if(status === 'all') {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = item.getAttribute('data-status') === status ? 'flex' : 'none';
+        }
+    });
+}
+
+async function handleCreateDivisionHead(event) {
+    event.preventDefault();
+    const name = document.getElementById('newDHName').value.trim();
+    const email = document.getElementById('newDHEmail').value.trim();
+    const password = document.getElementById('newDHPassword').value;
+    const divisionId = document.getElementById('newDHDivisionId').value.trim();
+    
+    if(password.length < 6) {
+        alert("Password kam se kam 6 characters ka hona chahiye!");
+        return;
+    }
+    try {
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const newUid = userCredential.user.uid;
+        
+        await db.collection('users').doc(newUid).set({
+            uid: newUid,
+            name: name,
+            email: email,
+            role: 'division_head',
+            levelId: divisionId,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'active'
+        });
+        
+        alert(`Division Head (${name}) dynamically created for Region: ${divisionId}!`);
+        document.getElementById('createDivHeadForm').reset();
+    } catch (error) {
+        alert("Registration Error: " + error.message);
+    }
 }
 
 async function initDashboard(user){
@@ -211,114 +201,103 @@ document.getElementById('sbRole').textContent=(user.role||'').replace('_',' ').r
 document.getElementById('sbAvatar').textContent=(user.name||'?')[0].toUpperCase();
 document.getElementById('avatarEl').textContent=(user.name||'?')[0].toUpperCase();
 document.getElementById('sbMenu').innerHTML=getSidebarHTML(user.role);
-document.getElementById('bnav').innerHTML=getBottomNavHTML(user.role);
 
 try{
-let districtCount=0,areaCount=0,zeliCount=0,departmentCount=0,pendingCount=0;
 const role=user.role;
+let mainContentEl = document.getElementById('mainContent');
 
-if(role==='division_head'){
-const [da,ar,zh,dp,ap]=await Promise.all([
+if(role === 'super_admin') {
+    mainContentEl.innerHTML = `
+        <div class="card" style="border: 1px solid var(--p); margin-bottom: 16px;">
+            <div class="card-h" style="background: rgba(26,107,60,0.05)">
+                <h3>Create New Division Head Account</h3>
+            </div>
+            <div class="card-b">
+                <form id="createDivHeadForm" onsubmit="handleCreateDivisionHead(event)" style="display:flex; flex-direction:column; gap:12px;">
+                    <div class="form-grp-inline"><label>Full Name</label><input type="text" id="newDHName" required placeholder="e.g. Asif Khan"></div>
+                    <div class="form-grp-inline"><label>Official Email</label><input type="email" id="newDHEmail" required placeholder="email@ngo.org"></div>
+                    <div class="form-grp-inline"><label>Password</label><input type="password" id="newDHPassword" required placeholder="Min 6 characters"></div>
+                    <div class="form-grp-inline"><label>Assigned Division ID</label><input type="text" id="newDHDivisionId" required placeholder="e.g. DIV-NORTH"></div>
+                    <button type="submit" class="btn btn-p btn-blk">Register Division Head</button>
+                </form>
+            </div>
+        </div>
+        <div class="empty"><p>Super Admin Panel Active</p></div>`;
+}
+
+else if(role==='division_head'){
+const [da,ar,ap]=await Promise.all([
 db.collection('districts').where('divisionId','==',user.levelId).get(),
 db.collection('areas').where('divisionId','==',user.levelId).get(),
-db.collection('zeli_halqas').where('divisionId','==',user.levelId).get(),
-db.collection('departments').where('divisionId','==',user.levelId).get(),
-db.collection('approvals').where('levelId','==',user.levelId).where('status','==','pending').get()
+db.collection('approvals').where('divisionId','==',user.levelId).get()
 ]);
-districtCount=da.size;areaCount=ar.size;zeliCount=zh.size;departmentCount=dp.size;pendingCount=ap.size;
 
-let pendingHTML='';
+let pendingCount = 0;
+let itemsHTML = '';
+
+ap.forEach(d => {
+    const data = d.data();
+    if(data.status === 'pending') pendingCount++;
+    const badgeClass = data.status === 'approved' ? 'b-su' : (data.status === 'pending' ? 'b-w' : 'b-d');
+    
+    itemsHTML += '<div class="lst-i" data-status="'+data.status+'">'+
+        '<div class="lst-a"><h4>'+(data.title || 'Approval Request')+'</h4><p>From: '+data.submittedByName+' (District)</p></div>'+
+        '<span class="badge '+badgeClass+'">'+data.status.toUpperCase()+'</span>'+
+    '</div>';
+});
+
+let pendingAlertHTML='';
 if(pendingCount>0){
-pendingHTML='<div class="ap-pend" onclick="window.location.href=\'approvals.html\'"><div class="ap-ic">&#128276;</div><div class="ap-tx"><h4>'+pendingCount+' Pending Approval(s)</h4><p>Click to review pending requests</p></div></div>';
+pendingAlertHTML='<div class="ap-pend" onclick="window.location.href=\'approvals.html\'"><div class="ap-ic">&#128276;</div><div class="ap-tx"><h4>'+pendingCount+' Pending Action Items</h4><p>Click to review and authorize requests</p></div></div>';
 }
 
-const areasSnap=await db.collection('areas').where('divisionId','==',user.levelId).get();
-const areaDocs=[];
-areasSnap.forEach(d=>areaDocs.push({id:d.id,...d.data()}));
-
-let hierarchyHTML='';
-for(let i=0;i<Math.min(areaDocs.length,5);i++){
-const a=areaDocs[i];
-const districtsSnap=await db.collection('districts').where('divisionId','==',user.levelId).get();
-const distName=districtsSnap.docs.find(dd=>dd.id===a.districtId);
-hierarchyHTML+='<div class="hier"><div class="hier-dot" style="background:var(--p)"></div><span><strong>'+a.name+'</strong> '+(distName?'in '+distName.data().name:'')+'</span></div>';
-}
-
-document.getElementById('mainContent').innerHTML=pendingHTML+
+mainContentEl.innerHTML=pendingAlertHTML+
 '<div class="stats">'+
-'<div class="stat"><div class="stat-icon" style="background:#e8f5e9;color:var(--su)">&#127970;</div><div class="stat-num">'+districtCount+'</div><div class="stat-label">Districts</div></div>'+
-'<div class="stat"><div class="stat-icon" style="background:#e3f2fd;color:#1976d2">&#128205;</div><div class="stat-num">'+areaCount+'</div><div class="stat-label">Areas</div></div>'+
-'<div class="stat"><div class="stat-icon" style="background:#fff3e0;color:var(--w)">&#127969;</div><div class="stat-num">'+zeliCount+'</div><div class="stat-label">Zeli Halqas</div></div>'+
-'<div class="stat"><div class="stat-icon" style="background:#f3e5f5;color:#9c27b0">&#128196;</div><div class="stat-num">'+departmentCount+'</div><div class="stat-label">Departments</div></div>'+
+'<div class="stat"><div class="stat-icon" style="background:#e8f5e9;color:var(--su)">&#127970;</div><div class="stat-num">'+da.size+'</div><div class="stat-label">Districts</div></div>'+
+'<div class="stat"><div class="stat-icon" style="background:#e3f2fd;color:#1976d2">&#128205;</div><div class="stat-num">'+ar.size+'</div><div class="stat-label">Areas</div></div>'+
+'<div class="stat"><div class="stat-icon" style="background:#fff3e0;color:var(--w)">&#128276;</div><div class="stat-num">'+pendingCount+'</div><div class="stat-label">Pending Action</div></div>'+
 '</div>'+
-'<div class="card"><div class="card-h"><h3>Organization Hierarchy</h3></div><div class="card-b">'+(hierarchyHTML||'<div class="empty"><p>No areas added yet</p></div>')+'</div></div>';
+'<div class="filter-tabs">'+
+'<button class="filter-btn active" onclick="filterDashboardList(\'all\')">All</button>'+
+'<button class="filter-btn" onclick="filterDashboardList(\'pending\')">Pending</button>'+
+'<button class="filter-btn" onclick="filterDashboardList(\'approved\')">Approved</button>'+
+'</div>'+
+'<div class="card"><div class="card-h"><h3>Incoming District Requests</h3></div><div class="card-b">'+(itemsHTML||'<div class="empty"><p>No dynamic entry records found</p></div>')+'</div></div>';
 }
 
 else if(role==='district_head'){
-const [ar,zh,ap]=await Promise.all([
+const [ar,ap]=await Promise.all([
 db.collection('areas').where('districtId','==',user.levelId).get(),
-db.collection('zeli_halqas').where('districtId','==',user.levelId).get(),
-db.collection('approvals').where('levelId','==',user.levelId).where('status','==','pending').get()
+db.collection('approvals').where('submittedById','==',user.uid).get()
 ]);
-areaCount=ar.size;zeliCount=zh.size;pendingCount=ap.size;
-
-let imamCount=0;
-zh.forEach(d=>{const dd=d.data();if(dd.imamPhone)imamCount++});
-
-let pendingHTML='';
-if(pendingCount>0){
-pendingHTML='<div class="ap-pend" onclick="window.location.href=\'approvals.html\'"><div class="ap-ic">&#128276;</div><div class="ap-tx"><h4>'+pendingCount+' Pending Approval(s)</h4><p>Click to review pending requests</p></div></div>';
-}
-
-const recentAreas=[];
-ar.forEach(d=>recentAreas.push({id:d.id,...d.data()}));
-let recentHTML='';
-recentAreas.slice(0,5).forEach(a=>{
-recentHTML+='<div class="lst-i"><div class="lst-a"><h4>'+a.name+'</h4><p>Area</p></div><span class="badge b-i">Active</span></div>';
-});
-
-document.getElementById('mainContent').innerHTML=pendingHTML+
-'<div class="stats">'+
-'<div class="stat"><div class="stat-icon" style="background:#e3f2fd;color:#1976d2">&#128205;</div><div class="stat-num">'+areaCount+'</div><div class="stat-label">Areas</div></div>'+
-'<div class="stat"><div class="stat-icon" style="background:#fff3e0;color:var(--w)">&#127969;</div><div class="stat-num">'+zeliCount+'</div><div class="stat-label">Zeli Halqas</div></div>'+
-'<div class="stat"><div class="stat-icon" style="background:#e8f5e9;color:var(--su)">&#128100;</div><div class="stat-num">'+imamCount+'</div><div class="stat-label">Imams</div></div>'+
-'<div class="stat"><div class="stat-icon" style="background:#ffebee;color:var(--d)">&#128276;</div><div class="stat-num">'+pendingCount+'</div><div class="stat-label">Pending</div></div>'+
-'</div>'+
-'<div class="card"><div class="card-h"><h3>Recent Areas</h3></div><div class="card-b">'+(recentHTML||'<div class="empty"><p>No areas yet</p></div>')+'</div></div>';
-}
-
-else if(role==='area_head'){
-const [zh]=await Promise.all([
-db.collection('zeli_halqas').where('areaId','==',user.levelId).get()
-]);
-zeliCount=zh.size;
-
-let imamCount=0,withPhone=0;
-zh.forEach(d=>{const dd=d.data();if(dd.imamName)imamCount++;if(dd.imamPhone)withPhone++});
 
 let recentHTML='';
-const recent=[];
-zh.forEach(d=>recent.push({id:d.id,...d.data()}));
-recent.slice(0,5).forEach(z=>{
-recentHTML+='<div class="lst-i"><div class="lst-a"><h4>'+z.masjidName+'</h4><p>'+z.imamName+'</p></div><span class="badge b-su">Active</span></div>';
+ap.forEach(d=>{
+    const a = d.data();
+    const badgeClass = a.status === 'approved' ? 'b-su' : (a.status === 'pending' ? 'b-w' : 'b-d');
+    recentHTML+='<div class="lst-i" data-status="'+a.status+'"><div class="lst-a"><h4>'+(a.title || 'Request Entry')+'</h4><p>Sent to Division Head</p></div><span class="badge '+badgeClass+'">'+a.status.toUpperCase()+'</span></div>';
 });
 
-document.getElementById('mainContent').innerHTML=
+mainContentEl.innerHTML=
 '<div class="stats">'+
-'<div class="stat"><div class="stat-icon" style="background:#fff3e0;color:var(--w)">&#127969;</div><div class="stat-num">'+zeliCount+'</div><div class="stat-label">Zeli Halqas</div></div>'+
-'<div class="stat"><div class="stat-icon" style="background:#e8f5e9;color:var(--su)">&#128100;</div><div class="stat-num">'+imamCount+'</div><div class="stat-label">Imams</div></div>'+
-'<div class="stat"><div class="stat-icon" style="background:#e3f2fd;color:#1976d2">&#128222;</div><div class="stat-num">'+withPhone+'</div><div class="stat-label">With Phone</div></div>'+
-'<div class="stat"><div class="stat-icon" style="background:#f3e5f5;color:#9c27b0">&#128196;</div><div class="stat-num">'+zeliCount+'</div><div class="stat-label">Total</div></div>'+
+'<div class="stat"><div class="stat-icon" style="background:#e3f2fd;color:#1976d2">&#128205;</div><div class="stat-num">'+ar.size+'</div><div class="stat-label">My Areas</div></div>'+
+'<div class="stat"><div class="stat-icon" style="background:#fff3e0;color:var(--w)">&#128196;</div><div class="stat-num">'+ap.size+'</div><div class="stat-label">Total Sent</div></div>'+
 '</div>'+
-'<div class="card"><div class="card-h"><h3>Recent Zeli Halqas</h3></div><div class="card-b">'+(recentHTML||'<div class="empty"><p>No zeli halqas yet</p></div>')+'</div></div>';
+'<div class="filter-tabs">'+
+'<button class="filter-btn active" onclick="filterDashboardList(\'all\')">All</button>'+
+'<button class="filter-btn" onclick="filterDashboardList(\'pending\')">Pending</button>'+
+'<button class="filter-btn" onclick="filterDashboardList(\'approved\')">Approved</button>'+
+'</div>'+
+'<div class="card"><div class="card-h"><h3>My Submission Tracking (View Only)</h3></div><div class="card-b">'+(recentHTML||'<div class="empty"><p>No submissions tracked yet</p></div>')+'</div></div>';
 }
+
 }catch(e){
 console.error(e);
-document.getElementById('mainContent').innerHTML='<div class="alert a-d">Error loading dashboard data</div>';
+document.getElementById('mainContent').innerHTML='<div class="alert a-d">Error loading filtered dashboard data</div>';
 }
 }
 
-const user=requireAuth(['division_head','district_head','area_head']);
+const user=requireAuth(['super_admin','division_head','district_head']);
 if(user){initDashboard(user)}
 </script>
 </body>
