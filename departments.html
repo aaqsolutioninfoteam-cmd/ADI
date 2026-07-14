@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Departments - TSP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1a6b3c;--primary-dark:#0d4a25;--primary-light:#e8f5e9;--danger:#dc3545;--warning:#ff9800;--success:#28a745;--bg:#f0f2f5;--card:#fff;--text:#333;--text-light:#666;--border:#e0e0e0;--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;max-width:500px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.menubtn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:8px}.hdr h1{font-size:18px;font-weight:700;flex:1}
+.content{padding:16px;padding-bottom:100px}
+.sbar-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200}
+.sbar{display:none;position:fixed;top:0;left:0;width:280px;height:100%;background:#fff;z-index:300;box-shadow:4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;border-radius:0 14px 14px 0}
+.sbar.open{display:block}
+.sbar-hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:20px;border-radius:0 14px 0 0}
+.sbar-hdr h2{font-size:16px;font-weight:700;margin-bottom:4px}.sbar-hdr p{font-size:12px;opacity:.8}
+.sbar-hdr .rbadge{background:rgba(255,255,255,.2);padding:3px 10px;border-radius:10px;font-size:11px;display:inline-block;margin-top:6px}
+.sbar-menu{padding:10px 0}
+.sbar-menu a{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--text);text-decoration:none;font-size:14px;font-weight:500;transition:all .2s}
+.sbar-menu a:hover,.sbar-menu a.active{background:var(--primary-light);color:var(--primary)}
+.sbar-menu a i{width:20px;text-align:center;font-size:16px}
+.sbar-ft{padding:15px 20px;border-top:1px solid var(--border);margin-top:10px}.sbar-ft p{font-size:10px;color:var(--text-light);text-align:center}
+.lbtn{display:flex;align-items:center;gap:10px;padding:12px 20px;color:var(--danger);text-decoration:none;font-size:14px;font-weight:600;border-top:1px solid var(--border);margin-top:10px}.lbtn i{width:20px;text-align:center}
+.tabs{display:flex;gap:4px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+.tabs button{padding:8px 14px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;background:#e0e0e0;color:var(--text)}
+.tabs button.active{background:var(--primary);color:#fff}
+.tab-content{display:none}.tab-content.active{display:block}
+.search{width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;margin-bottom:14px}
+.item{background:#fff;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.item .ic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
+.ic.g{background:linear-gradient(135deg,var(--primary),var(--primary-dark))}
+.ic.b{background:linear-gradient(135deg,#1976d2,#0d47a1)}
+.item .info{flex:1;min-width:0}.item .info h4{font-size:14px;font-weight:700}.item .info p{font-size:11px;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .acts{display:flex;gap:4px}
+.item .acts button{width:30px;height:30px;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-edit{background:#e3f2fd;color:#1976d2}.btn-del{background:#ffebee;color:var(--danger)}
+.pbar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:4px}
+.pbar .fill{height:100%;border-radius:4px}
+.cov{background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);margin-bottom:10px}
+.cov h4{font-size:14px;font-weight:600}.cov .pct{font-size:12px;color:var(--text-light)}
+.modal-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:400;align-items:flex-end;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius) var(--radius) 0 0;padding:24px 20px;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;animation:su .3s}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--primary-dark)}
+.fg{margin-bottom:12px}.fg label{font-size:13px;font-weight:600;display:block;margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px;border:2px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;background:#f8f9fa}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary);background:#fff}
+.macts{display:flex;gap:10px;margin-top:16px}
+.macts button{flex:1;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-g{background:var(--primary);color:#fff}.btn-c{background:var(--border);color:var(--text)}
+.fbtn{position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:16px;background:var(--primary);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 15px rgba(26,107,60,0.4);z-index:50}
+.empty{text-align:center;padding:40px;color:var(--text-light)}.empty i{font-size:40px;color:var(--border);margin-bottom:10px;display:block}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--primary-dark);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:9999;display:none}.toast.err{background:var(--danger)}
+.tree-node{padding-left:20px;border-left:2px solid var(--border);margin-left:10px;margin-bottom:4px}
+.tree-head{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fff;border-radius:10px;box-shadow:var(--shadow);cursor:pointer;margin-bottom:4px;font-size:13px;font-weight:600}
+.tree-head .tl{flex:1}.tree-head .tc{font-size:11px;color:var(--text-light)}
+.tree-children{display:none}.tree-children.open{display:block}
+</style>
+</head>
+<body>
+<div class="sbar-ov" id="sbarOv" onclick="closeSbar()"></div>
+<div class="sbar" id="sbar"><div class="sbar-hdr"><h2 id="sName">User</h2><p id="sPhone"></p><span class="rbadge" id="sRole"></span></div><div class="sbar-menu" id="sMenu"></div><a href="index.html" class="lbtn" onclick="localStorage.removeItem('currentUser')"><i class="fas fa-sign-out-alt"></i> Logout</a><div class="sbar-ft"><p><i class="fas fa-code"></i> A.A.Q. Solutions & Outsourcing</p></div></div>
+<header class="hdr"><button class="menubtn" onclick="openSbar()"><i class="fas fa-bars"></i></button><h1><i class="fas fa-building"></i> Departments</h1></header>
+<div class="content">
+<div class="tabs"><button class="active" onclick="switchTab('overview')">Overview</button><button onclick="switchTab('depts')">Departments</button><button onclick="switchTab('structure')">Structure</button><button onclick="switchTab('vacancies')">Vacancies</button></div>
+<div class="tab-content active" id="tab-overview">
+<select class="search" id="deptSelect" onchange="loadOverview()"><option value="">Select Department</option></select>
+<div id="overviewContent"></div>
+</div>
+<div class="tab-content" id="tab-depts">
+<input class="search" placeholder="Search departments..." oninput="filterDepts()">
+<div id="deptList"></div>
+</div>
+<div class="tab-content" id="tab-structure">
+<input class="search" placeholder="Search structure..." oninput="filterStructure()">
+<div id="structTree"></div>
+</div>
+<div class="tab-content" id="tab-vacancies">
+<select class="search" id="vacFilter" onchange="filterVac()"><option value="">All Departments</option></select>
+<div id="vacList"></div>
+</div>
+</div>
+<button class="fbtn" id="addBtn" onclick="openDeptModal()"><i class="fas fa-plus"></i></button>
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)closeModal()"><div class="modal" onclick="event.stopPropagation()"><h2 id="modalTitle">Add Department</h2><input type="hidden" id="editId"><div id="modalFields"></div><div class="macts"><button class="btn-c" onclick="closeModal()">Cancel</button><button class="btn-g" onclick="saveDept()"><i class="fas fa-save"></i> Save</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const FC={apiKey:"AIzaSyBx7UCuhxtgXIKmh9ocGUN_MQktsIN610M",authDomain:"information-1d471.firebaseapp.com",projectId:"information-1d471",storageBucket:"information-1d471.appspot.com",messagingSenderId:"489310613218",appId:"1:489310613218:web:e44e61cf16d4b8c106729d"};
+if(!firebase.apps.length)firebase.initializeApp(FC);const db=firebase.firestore();let CU=null;
+let allDepts=[],allStaff=[],allPersons=[],allDistricts=[],allAreas=[],allZH=[],allAppr=[];
+
+function reqAuth(){const u=JSON.parse(localStorage.getItem("currentUser")||"null");if(!u||!u.phone){window.location.href="index.html";return null;}CU=u;return u;}
+function openSbar(){if(!CU)return;document.getElementById("sName").textContent=CU.name||"User";document.getElementById("sPhone").textContent=CU.phone||"";document.getElementById("sRole").textContent=CU.role==="division_head"?"Division Head":CU.role==="district_head"?"District Head":CU.role==="area_head"?"Area Head":CU.role||"";document.getElementById("sMenu").innerHTML=`<a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a><a href="structure.html"><i class="fas fa-sitemap"></i> Tanzeemi Structure</a><a href="persons.html"><i class="fas fa-users"></i> People / Zimmedaran</a><a href="departments.html" class="active"><i class="fas fa-building"></i> Departments</a><a href="approvals.html"><i class="fas fa-check-double"></i> Approvals</a><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a><a href="admin.html"><i class="fas fa-cog"></i> Admin & Settings</a>`;document.getElementById("sbar").classList.add("open");document.getElementById("sbarOv").style.display="block";}
+function closeSbar(){document.getElementById("sbar").classList.remove("open");document.getElementById("sbarOv").style.display="none";}
+function toast(m,e){const t=document.getElementById("toast");t.textContent=m;t.className=e?"toast err":"toast";t.style.display="block";setTimeout(()=>t.style.display="none",3000);}
+
+function switchTab(tab){
+document.querySelectorAll(".tabs button").forEach((b,i)=>{b.classList.toggle("active",["overview","depts","structure","vacancies"][i]===tab);});
+document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+document.getElementById("tab-"+tab).classList.add("active");
+document.getElementById("addBtn").style.display=tab==="depts"?"flex":"none";
+}
+
+async function loadAll(){
+try{
+const[ds,ss,ps,da,ar,zh,ap]=await Promise.all([
+db.collection("departments").get(),db.collection("dept_staff").get(),db.collection("persons").get(),
+db.collection("districts").get(),db.collection("areas").get(),db.collection("zeli_halqas").get(),db.collection("approvals").where("status","==","pending").get()
+]);
+allDepts=[];ds.forEach(d=>allDepts.push({id:d.id,...d.data()}));
+allStaff=[];ss.forEach(d=>allStaff.push({id:d.id,...d.data()}));
+allPersons=[];ps.forEach(d=>allPersons.push({id:d.id,...d.data()}));
+allDistricts=[];da.forEach(d=>allDistricts.push({id:d.id,...d.data()}));
+allAreas=[];ar.forEach(d=>allAreas.push({id:d.id,...d.data()}));
+allZH=[];zh.forEach(d=>allZH.push({id:d.id,...d.data()}));
+allAppr=[];ap.forEach(d=>allAppr.push({id:d.id,...d.data()}));
+populateDeptSelect();loadOverview();renderDepts();renderStructure();renderVacancies();
+}catch(e){console.error(e);}
+}
+
+function populateDeptSelect(){
+document.getElementById("deptSelect").innerHTML='<option value="">Select Department</option>'+allDepts.map(d=>`<option value="${d.id}">${d.name}</option>`).join("");
+document.getElementById("vacFilter").innerHTML='<option value="">All Departments</option>'+allDepts.map(d=>`<option value="${d.id}">${d.name}</option>`).join("");
+}
+
+function loadOverview(){
+const deptId=document.getElementById("deptSelect").value;
+const c=document.getElementById("overviewContent");
+if(!deptId){c.innerHTML='<div class="empty"><i class="fas fa-building"></i><p>Select a department</p></div>';return;}
+const dept=allDepts.find(d=>d.id===deptId);
+const staff=allStaff.filter(s=>s.deptId===deptId);
+const persons=staff.filter(s=>s.personId).map(s=>allPersons.find(p=>p.id===s.personId)).filter(Boolean);
+const filled=staff.filter(s=>s.personId).length;
+const vacant=staff.length-filled;
+const pct=staff.length>0?Math.round((filled/staff.length)*100):0;
+const active=persons.filter(p=>p.status==="active").length;
+const appr=allAppr.filter(a=>a.requestType&&a.requestType.toLowerCase().includes("dept"));
+c.innerHTML=`
+<div class="cov"><h4>${dept?dept.name:""}</h4><p class="pct">Head: ${dept?dept.headName||"Vacant":"-"} ${dept&&dept.headPhone?"| "+dept.headPhone:""}</p></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+<div class="cov"><h4>${persons.length}</h4><p class="pct">Total Persons</p></div>
+<div class="cov"><h4>${active}</h4><p class="pct">Active</p></div>
+<div class="cov"><h4>${filled}</h4><p class="pct">Filled Positions</p></div>
+<div class="cov"><h4>${vacant}</h4><p class="pct">Vacant Positions</p></div>
+</div>
+<div class="cov"><h4>Coverage: ${pct}%</h4><div class="pbar"><div class="fill" style="width:${pct}%;background:${pct>70?"var(--success)":pct>40?"var(--warning)":"var(--danger)"}"></div></div></div>
+`;
+}
+
+function renderDepts(){
+const c=document.getElementById("deptList");
+if(!allDepts.length){c.innerHTML='<div class="empty"><i class="fas fa-building"></i><p>No departments</p></div>';return;}
+c.innerHTML=allDepts.map(d=>{
+const staff=allStaff.filter(s=>s.deptId===d.id);const filled=staff.filter(s=>s.personId).length;const vacant=staff.length-filled;
+return`<div class="item"><div class="ic g"><i class="fas fa-building"></i></div><div class="info"><h4>${d.name}</h4><p>${d.code||"-"} | Head: ${d.headName||"Vacant"} | Persons: ${staff.length} | Filled: ${filled} | Vacant: ${vacant}</p></div><div class="acts"><button class="btn-edit" onclick="openDeptModal('${d.id}')"><i class="fas fa-pen"></i></button></div></div>`;
+}).join("");
+}
+
+function filterDepts(){
+const q=event.target.value.toLowerCase();
+const filtered=allDepts.filter(d=>(d.name||"").toLowerCase().includes(q)||(d.code||"").toLowerCase().includes(q));
+const c=document.getElementById("deptList");
+c.innerHTML=filtered.map(d=>{const staff=allStaff.filter(s=>s.deptId===d.id);const filled=staff.filter(s=>s.personId).length;return`<div class="item"><div class="ic g"><i class="fas fa-building"></i></div><div class="info"><h4>${d.name}</h4><p>${d.code||"-"} | Head: ${d.headName||"Vacant"} | Persons: ${staff.length}</p></div><div class="acts"><button class="btn-edit" onclick="openDeptModal('${d.id}')"><i class="fas fa-pen"></i></button></div></div>`;}).join("");
+}
+
+function renderStructure(){
+const c=document.getElementById("structTree");
+if(!allDepts.length){c.innerHTML='<div class="empty"><i class="fas fa-sitemap"></i><p>No departments</p></div>';return;}
+let h="";
+allDepts.forEach(dept=>{
+const staff=allStaff.filter(s=>s.deptId===dept.id);
+const persons=staff.map(s=>{const p=allPersons.find(x=>x.id===s.personId);return p?{...s,person:p}:s;});
+h+=`<div class="tree-node"><div class="tree-head" onclick="this.nextElementSibling.classList.toggle('open')"><i class="fas fa-chevron-right toggle" style="color:var(--primary);font-size:12px;width:16px"></i><span class="tl"><i class="fas fa-building" style="color:var(--primary)"></i> ${dept.name}</span><span class="tc">${staff.length} staff</span></div><div class="tree-children">`;
+	persons.forEach(s=>{
+	const person=s.person||{};
+	h+=`<div class="tree-head"><i class="fas fa-user toggle" style="color:#1976d2;font-size:12px;width:16px"></i><span class="tl">${person.name||s.personName||"Vacant"}</span><span class="tc">${s.designation||"-"}</span></div>`;
+	});
+h+=`</div></div>`;
+});
+c.innerHTML=h;
+}
+
+function filterStructure(){const q=event.target.value.toLowerCase();document.querySelectorAll("#structTree .tree-head").forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(q)||!q?"flex":"none";});}
+
+function renderVacancies(){
+const filter=document.getElementById("vacFilter").value;
+let vac=allStaff.filter(s=>!s.personId);
+if(filter)vac=vac.filter(v=>v.deptId===filter);
+const c=document.getElementById("vacList");
+if(!vac.length){c.innerHTML='<div class="empty"><i class="fas fa-user-minus"></i><p>No vacant positions</p></div>';return;}
+c.innerHTML=vac.map(v=>{
+const dept=allDepts.find(d=>d.id===v.deptId);
+return`<div class="item"><div class="ic" style="background:linear-gradient(135deg,var(--warning),#e65100)"><i class="fas fa-user-minus"></i></div><div class="info"><h4>${dept?dept.name:""} - ${v.designation||"-"}</h4><p>${v.level||"-"} | ${v.location||"-"} | Since: ${v.vacancySince||"-"}</p></div></div>`;
+}).join("");
+}
+
+function filterVac(){renderVacancies();}
+
+function openDeptModal(editId){
+const d=editId?allDepts.find(x=>x.id===editId):null;
+document.getElementById("modalTitle").innerHTML=editId?"Edit Department":"Add Department";
+document.getElementById("editId").value=editId||"";
+document.getElementById("modalFields").innerHTML=`
+<div class="fg"><label>Name *</label><input id="fName" value="${d?d.name||"":""}"></div>
+<div class="fg"><label>Code</label><input id="fCode" value="${d?d.code:"DEPT"+String(allDepts.length+1).padStart(3,"0")}" readonly></div>
+<div class="fg"><label>Description</label><textarea id="fDesc" rows="2">${d?d.description||"":""}</textarea></div>
+<div class="fg"><label>Head Name</label><input id="fHeadName" value="${d?d.headName||"":""}"></div>
+<div class="fg"><label>Head Phone</label><input id="fHeadPhone" value="${d?d.headPhone||"":""}" maxlength="10"></div>`;
+document.getElementById("modalOv").classList.add("open");
+}
+function closeModal(){document.getElementById("modalOv").classList.remove("open");}
+
+async function saveDept(){
+const editId=document.getElementById("editId").value;
+const name=document.getElementById("fName").value.trim();
+if(!name){toast("Name required",true);return;}
+const data={name,code:document.getElementById("fCode").value,description:document.getElementById("fDesc").value.trim(),headName:document.getElementById("fHeadName").value.trim(),headPhone:document.getElementById("fHeadPhone").value.trim(),updatedAt:new Date().toISOString()};
+try{if(editId){await db.collection("departments").doc(editId).update(data);}else{data.createdBy=CU.id||CU.uid||"system";data.createdAt=new Date().toISOString();await db.collection("departments").add(data);}closeModal();toast("Saved!");loadAll();}catch(e){toast("Error: "+e.message,true);}
+}
+
+window.onload=async()=>{if(!reqAuth())return;await loadAll();};
+</script>
+</body>
+</html>

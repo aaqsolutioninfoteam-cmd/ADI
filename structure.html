@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Tanzeemi Structure - TSP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1a6b3c;--primary-dark:#0d4a25;--primary-light:#e8f5e9;--danger:#dc3545;--warning:#ff9800;--success:#28a745;--bg:#f0f2f5;--card:#fff;--text:#333;--text-light:#666;--border:#e0e0e0;--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;max-width:500px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.menubtn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:8px}
+.hdr h1{font-size:18px;font-weight:700;flex:1}
+.content{padding:16px;padding-bottom:100px}
+.sbar-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200}
+.sbar{display:none;position:fixed;top:0;left:0;width:280px;height:100%;background:#fff;z-index:300;box-shadow:4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;border-radius:0 14px 14px 0}
+.sbar.open{display:block}
+.sbar-hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:20px;border-radius:0 14px 0 0}
+.sbar-hdr h2{font-size:16px;font-weight:700;margin-bottom:4px}
+.sbar-hdr p{font-size:12px;opacity:.8}
+.sbar-hdr .rbadge{background:rgba(255,255,255,.2);padding:3px 10px;border-radius:10px;font-size:11px;display:inline-block;margin-top:6px}
+.sbar-menu{padding:10px 0}
+.sbar-menu a{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--text);text-decoration:none;font-size:14px;font-weight:500;transition:all .2s}
+.sbar-menu a:hover,.sbar-menu a.active{background:var(--primary-light);color:var(--primary)}
+.sbar-menu a i{width:20px;text-align:center;font-size:16px}
+.sbar-ft{padding:15px 20px;border-top:1px solid var(--border);margin-top:10px}
+.sbar-ft p{font-size:10px;color:var(--text-light);text-align:center}
+.lbtn{display:flex;align-items:center;gap:10px;padding:12px 20px;color:var(--danger);text-decoration:none;font-size:14px;font-weight:600;border-top:1px solid var(--border);margin-top:10px}
+.lbtn i{width:20px;text-align:center}
+.tabs{display:flex;gap:4px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+.tabs button{padding:8px 14px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;background:#e0e0e0;color:var(--text)}
+.tabs button.active{background:var(--primary);color:#fff}
+.tab-content{display:none}.tab-content.active{display:block}
+.search{width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;margin-bottom:14px}
+.item{background:#fff;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.item:active{transform:scale(0.98)}
+.item .ic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
+.ic.g{background:linear-gradient(135deg,var(--primary),var(--primary-dark))}
+.ic.b{background:linear-gradient(135deg,#1976d2,#0d47a1)}
+.ic.p{background:linear-gradient(135deg,#7b1fa2,#4a148c)}
+.ic.o{background:linear-gradient(135deg,var(--warning),#e65100)}
+.item .info{flex:1;min-width:0}
+.item .info h4{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .info p{font-size:11px;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .acts{display:flex;gap:4px}
+.item .acts button{width:30px;height:30px;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-edit{background:#e3f2fd;color:#1976d2}
+.btn-del{background:#ffebee;color:var(--danger)}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600}
+.badge.g{background:var(--primary-light);color:var(--primary)}
+.badge.r{background:#ffebee;color:var(--danger)}
+.badge.o{background:#fff3e0;color:var(--warning)}
+.modal-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:400;align-items:flex-end;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius) var(--radius) 0 0;padding:24px 20px;width:100%;max-width:500px;max-height:80vh;overflow-y:auto;animation:su .3s}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--primary-dark)}
+.fg{margin-bottom:14px}
+.fg label{font-size:13px;font-weight:600;display:block;margin-bottom:6px}
+.fg input,.fg select{width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#f8f9fa}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary);background:#fff}
+.macts{display:flex;gap:10px;margin-top:16px}
+.macts button{flex:1;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-g{background:var(--primary);color:#fff}
+.btn-c{background:var(--border);color:var(--text)}
+.empty{text-align:center;padding:40px;color:var(--text-light)}
+.empty i{font-size:40px;color:var(--border);margin-bottom:10px;display:block}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--primary-dark);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:9999;display:none}
+.toast.err{background:var(--danger)}
+.tree-node{padding-left:20px;border-left:2px solid var(--border);margin-left:10px;margin-bottom:4px}
+.tree-head{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fff;border-radius:10px;box-shadow:var(--shadow);cursor:pointer;margin-bottom:4px;font-size:13px;font-weight:600}
+.tree-head i.toggle{color:var(--primary);font-size:12px;width:16px}
+.tree-head .tl{flex:1}
+.tree-head .tc{font-size:11px;color:var(--text-light);font-weight:400}
+.tree-head .tv{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--primary-light);color:var(--primary)}
+.tree-children{display:none}
+.tree-children.open{display:block}
+.fbtn{position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:16px;background:var(--primary);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 15px rgba(26,107,60,0.4);z-index:50}
+</style>
+</head>
+<body>
+<div class="sbar-ov" id="sbarOv" onclick="closeSbar()"></div>
+<div class="sbar" id="sbar">
+<div class="sbar-hdr"><h2 id="sName">User</h2><p id="sPhone"></p><span class="rbadge" id="sRole"></span></div>
+<div class="sbar-menu" id="sMenu"></div>
+<a href="index.html" class="lbtn" onclick="localStorage.removeItem('currentUser')"><i class="fas fa-sign-out-alt"></i> Logout</a>
+<div class="sbar-ft"><p><i class="fas fa-code"></i> A.A.Q. Solutions & Outsourcing</p></div>
+</div>
+<header class="hdr"><button class="menubtn" onclick="openSbar()"><i class="fas fa-bars"></i></button><h1><i class="fas fa-sitemap"></i> Tanzeemi Structure</h1></header>
+<div class="content">
+<div class="tabs" id="tabs">
+<button class="active" onclick="switchTab('tree')"><i class="fas fa-sitemap"></i> Tree</button>
+<button onclick="switchTab('districts')"><i class="fas fa-map-marker-alt"></i> Districts</button>
+<button onclick="switchTab('areas')"><i class="fas fa-map"></i> Areas</button>
+<button onclick="switchTab('zh')"><i class="fas fa-layer-group"></i> Zeli Halqas</button>
+</div>
+<div class="tab-content active" id="tab-tree">
+<div style="display:flex;gap:8px;margin-bottom:14px">
+<button class="btn-g" style="padding:6px 12px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:#fff" onclick="toggleAll(true)"><i class="fas fa-expand-arrows-alt"></i> Expand All</button>
+<button class="btn-c" style="padding:6px 12px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)" onclick="toggleAll(false)"><i class="fas fa-compress-arrows-alt"></i> Collapse All</button>
+</div>
+<input class="search" placeholder="Search tree..." id="treeSearch" oninput="filterTree()">
+<div id="treeContainer"></div>
+</div>
+<div class="tab-content" id="tab-districts">
+<input class="search" placeholder="Search districts..." oninput="filterItems('districts')">
+<div id="districtsList"></div>
+</div>
+<div class="tab-content" id="tab-areas">
+<select class="search" id="areaDistFilter" onchange="loadAreas()" style="margin-bottom:14px"><option value="">All Districts</option></select>
+<input class="search" placeholder="Search areas..." oninput="filterItems('areas')">
+<div id="areasList"></div>
+</div>
+<div class="tab-content" id="tab-zh">
+<select class="search" id="zhAreaFilter" onchange="loadZH()" style="margin-bottom:14px"><option value="">All Areas</option></select>
+<input class="search" placeholder="Search zeli halqas..." oninput="filterItems('zh')">
+<div id="zhList"></div>
+</div>
+</div>
+<button class="fbtn" id="addBtn" onclick="openModal()"><i class="fas fa-plus"></i></button>
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)closeModal()">
+<div class="modal" onclick="event.stopPropagation()">
+<h2 id="modalTitle">Add</h2>
+<input type="hidden" id="editId">
+<input type="hidden" id="editType">
+<div id="modalFields"></div>
+<div class="macts">
+<button class="btn-c" onclick="closeModal()">Cancel</button>
+<button class="btn-g" onclick="saveItem()"><i class="fas fa-save"></i> Save</button>
+</div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const FC={apiKey:"AIzaSyBx7UCuhxtgXIKmh9ocGUN_MQktsIN610M",authDomain:"information-1d471.firebaseapp.com",projectId:"information-1d471",storageBucket:"information-1d471.appspot.com",messagingSenderId:"489310613218",appId:"1:489310613218:web:e44e61cf16d4b8c106729d"};
+if(!firebase.apps.length)firebase.initializeApp(FC);
+const db=firebase.firestore();let CU=null;let currentTab="tree";
+let districts=[],areas=[],zhList=[];
+let allDistricts=[],allAreas=[],allZH=[];
+
+function reqAuth(){const u=JSON.parse(localStorage.getItem("currentUser")||"null");if(!u||!u.phone){window.location.href="index.html";return null;}CU=u;return u;}
+function openSbar(){if(!CU)return;document.getElementById("sName").textContent=CU.name||"User";document.getElementById("sPhone").textContent=CU.phone||"";document.getElementById("sRole").textContent=CU.role==="division_head"?"Division Head":CU.role==="district_head"?"District Head":CU.role==="area_head"?"Area Head":CU.role||"";document.getElementById("sMenu").innerHTML=`<a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a><a href="structure.html" class="active"><i class="fas fa-sitemap"></i> Tanzeemi Structure</a><a href="persons.html"><i class="fas fa-users"></i> People / Zimmedaran</a><a href="departments.html"><i class="fas fa-building"></i> Departments</a><a href="approvals.html"><i class="fas fa-check-double"></i> Approvals</a><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a><a href="admin.html"><i class="fas fa-cog"></i> Admin & Settings</a>`;document.getElementById("sbar").classList.add("open");document.getElementById("sbarOv").style.display="block";}
+function closeSbar(){document.getElementById("sbar").classList.remove("open");document.getElementById("sbarOv").style.display="none";}
+function toast(m,e){const t=document.getElementById("toast");t.textContent=m;t.className=e?"toast err":"toast";t.style.display="block";setTimeout(()=>t.style.display="none",3000);}
+
+function switchTab(tab){
+currentTab=tab;
+document.querySelectorAll(".tabs button").forEach((b,i)=>{b.classList.toggle("active",["tree","districts","areas","zh"][i]===tab);});
+document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+document.getElementById("tab-"+tab).classList.add("active");
+const btn=document.getElementById("addBtn");
+if(tab==="tree"){btn.style.display="none";}
+else{btn.style.display="flex";btn.onclick=()=>openModal(tab);}
+}
+
+async function loadAll(){
+try{
+const[ds,as,zs]=await Promise.all([db.collection("districts").get(),db.collection("areas").get(),db.collection("zeli_halqas").get()]);
+allDistricts=[];ds.forEach(d=>allDistricts.push({id:d.id,...d.data()}));
+allAreas=[];as.forEach(d=>allAreas.push({id:d.id,...d.data()}));
+allZH=[];zs.forEach(d=>allZH.push({id:d.id,...d.data()}));
+renderTree();renderDistricts();loadAreasSelect();renderAreas();renderZH();
+}catch(e){console.error(e);}
+}
+
+function renderTree(){
+const c=document.getElementById("treeContainer");
+if(!allDistricts.length){c.innerHTML='<div class="empty"><i class="fas fa-sitemap"></i><p>No districts found</p></div>';return;}
+let h="";
+allDistricts.forEach(dist=>{
+const dAreas=allAreas.filter(a=>a.districtId===dist.id);
+const dZH=allZH.filter(z=>dAreas.some(a=>a.id===z.areaId));
+h+=`<div class="tree-node"><div class="tree-head" onclick="this.nextElementSibling.classList.toggle('open')"><i class="fas fa-chevron-right toggle"></i><span class="tl"><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> ${dist.name}</span><span class="tc">${dist.code||""}</span><span class="tv">${dAreas.length}A / ${dZH.length}ZH</span></div><div class="tree-children">`;
+	dAreas.forEach(area=>{
+	const aZH=allZH.filter(z=>z.areaId===area.id);
+	h+=`<div class="tree-node"><div class="tree-head" onclick="this.nextElementSibling.classList.toggle('open')"><i class="fas fa-chevron-right toggle"></i><span class="tl"><i class="fas fa-map" style="color:#1976d2"></i> ${area.name}</span><span class="tc">${area.code||""}</span><span class="tv">${aZH.length}ZH</span></div><div class="tree-children">`;
+		aZH.forEach(z=>{
+		h+=`<div class="tree-node"><div class="tree-head"><i class="fas fa-layer-group toggle" style="color:#7b1fa2"></i><span class="tl">${z.name}</span><span class="tc">${z.code||""}</span>${z.halqaHead?`<span class="tv">${z.halqaHead}</span>`:""}</div></div>`;
+		});
+		h+=`</div></div>`;
+	});
+	h+=`</div></div>`;
+});
+c.innerHTML=h;
+}
+
+function renderDistricts(){
+const c=document.getElementById("districtsList");
+if(!allDistricts.length){c.innerHTML='<div class="empty"><i class="fas fa-map-marker-alt"></i><p>No districts</p></div>';return;}
+c.innerHTML=allDistricts.map(d=>`<div class="item"><div class="ic g"><i class="fas fa-map-marker-alt"></i></div><div class="info"><h4>${d.name}</h4><p>${d.code||""} | ${d.headName||"No Head"} ${d.headPhone?"| "+d.headPhone:""}</p></div><div class="acts"><button class="btn-edit" onclick="openModal('districts','${d.id}')"><i class="fas fa-pen"></i></button></div></div>`).join("");
+}
+
+function loadAreasSelect(){
+const sel=document.getElementById("areaDistFilter");
+sel.innerHTML='<option value="">All Districts</option>'+allDistricts.map(d=>`<option value="${d.id}">${d.name}</option>`).join("");
+}
+
+function renderAreas(){
+const filter=document.getElementById("areaDistFilter").value;
+const list=filter?allAreas.filter(a=>a.districtId===filter):allAreas;
+const c=document.getElementById("areasList");
+if(!list.length){c.innerHTML='<div class="empty"><i class="fas fa-map"></i><p>No areas</p></div>';return;}
+c.innerHTML=list.map(a=>{const d=allDistricts.find(x=>x.id===a.districtId);return`<div class="item"><div class="ic b"><i class="fas fa-map"></i></div><div class="info"><h4>${a.name}</h4><p>${a.code||""} | ${d?d.name:""} | ${a.headName||"No Head"} ${a.headPhone?"| "+a.headPhone:""}</p></div><div class="acts"><button class="btn-edit" onclick="openModal('areas','${a.id}')"><i class="fas fa-pen"></i></button></div></div>`;}).join("");
+}
+
+function renderZH(){
+const filter=document.getElementById("zhAreaFilter").value;
+const list=filter?allZH.filter(z=>z.areaId===filter):allZH;
+const c=document.getElementById("zhList");
+if(!list.length){c.innerHTML='<div class="empty"><i class="fas fa-layer-group"></i><p>No zeli halqas</p></div>';return;}
+c.innerHTML=list.map(z=>{const a=allAreas.find(x=>x.id===z.areaId);const d=a?allDistricts.find(x=>x.id===a.districtId):null;return`<div class="item"><div class="ic p"><i class="fas fa-layer-group"></i></div><div class="info"><h4>${z.name}</h4><p>${z.code||""} | ${a?a.name:""} | Head: ${z.halqaHead||"-"} ${z.headPhone?"| "+z.headPhone:""} | Imam: ${z.imam||"-"}</p></div><div class="acts"><button class="btn-edit" onclick="openModal('zh','${z.id}')"><i class="fas fa-pen"></i></button></div></div>`;}).join("");
+}
+
+function loadAreas(){renderAreas();}
+function loadZH(){renderZH();}
+
+function filterTree(){
+const q=document.getElementById("treeSearch").value.toLowerCase();
+document.querySelectorAll("#treeContainer .tree-head").forEach(el=>{
+const match=el.textContent.toLowerCase().includes(q);
+el.style.display=match||!q?"flex":"none";
+});
+}
+
+function filterItems(type){
+const q=event.target.value.toLowerCase();
+if(type==="districts"){
+const filtered=allDistricts.filter(d=>(d.name||"").toLowerCase().includes(q)||(d.code||"").toLowerCase().includes(q));
+const c=document.getElementById("districtsList");
+c.innerHTML=filtered.map(d=>`<div class="item"><div class="ic g"><i class="fas fa-map-marker-alt"></i></div><div class="info"><h4>${d.name}</h4><p>${d.code||""} | ${d.headName||"No Head"}</p></div><div class="acts"><button class="btn-edit" onclick="openModal('districts','${d.id}')"><i class="fas fa-pen"></i></button></div></div>`).join("");
+}
+}
+
+function toggleAll(expand){
+document.querySelectorAll(".tree-children").forEach(c=>{if(expand)c.classList.add("open");else c.classList.remove("open");});
+}
+
+function getFields(type,editId){
+const item=editId?(type==="districts"?allDistricts.find(d=>d.id===editId):type==="areas"?allAreas.find(d=>d.id===editId):allZH.find(d=>d.id===editId)):null;
+let h="";
+if(type==="districts"){
+h=`<div class="fg"><label>District Name *</label><input id="fName" value="${item?item.name:""}" placeholder="District name"></div>
+<div class="fg"><label>Code</label><input id="fCode" value="${item?item.code:"D"+String(allDistricts.length+1).padStart(3,"0")}" readonly></div>
+<div class="fg"><label>Head Name</label><input id="fHeadName" value="${item?item.headName||"":""}" placeholder="Head name"></div>
+<div class="fg"><label>Head Phone</label><input id="fHeadPhone" value="${item?item.headPhone||"":""}" placeholder="Head phone" maxlength="10"></div>`;
+}else if(type==="areas"){
+h=`<div class="fg"><label>Area Name *</label><input id="fName" value="${item?item.name:""}" placeholder="Area name"></div>
+<div class="fg"><label>Code</label><input id="fCode" value="${item?item.code:"A"+String(allAreas.length+1).padStart(3,"0")}" readonly></div>
+<div class="fg"><label>District *</label><select id="fDistrict"><option value="">Select</option>${allDistricts.map(d=>`<option value="${d.id}" ${item&&item.districtId===d.id?"selected":""}>${d.name}</option>`).join("")}</select></div>
+<div class="fg"><label>Head Name</label><input id="fHeadName" value="${item?item.headName||"":""}" placeholder="Head name"></div>
+<div class="fg"><label>Head Phone</label><input id="fHeadPhone" value="${item?item.headPhone||"":""}" placeholder="Head phone" maxlength="10"></div>`;
+}else{
+h=`<div class="fg"><label>ZH Name *</label><input id="fName" value="${item?item.name:""}" placeholder="Zeli Halqa name"></div>
+<div class="fg"><label>Code</label><input id="fCode" value="${item?item.code:"ZH"+String(allZH.length+1).padStart(3,"0")}" readonly></div>
+<div class="fg"><label>Area *</label><select id="fArea"><option value="">Select</option>${allAreas.map(a=>{const d=allDistricts.find(x=>x.id===a.districtId);return`<option value="${a.id}" ${item&&item.areaId===a.id?"selected":""}>${a.name} (${d?d.name:""})</option>`;}).join("")}</select></div>
+<div class="fg"><label>Halqa Head</label><input id="fHeadName" value="${item?item.halqaHead||"":""}" placeholder="Head name"></div>
+<div class="fg"><label>Head Phone</label><input id="fHeadPhone" value="${item?item.headPhone||"":""}" placeholder="Head phone" maxlength="10"></div>
+<div class="fg"><label>Imam</label><input id="fImam" value="${item?item.imam||"":""}" placeholder="Imam name"></div>
+<div class="fg"><label>Imam Phone</label><input id="fImamPhone" value="${item?item.imamPhone||"":""}" placeholder="Imam phone" maxlength="10"></div>
+<div class="fg"><label>Address</label><input id="fAddress" value="${item?item.address||"":""}" placeholder="Address"></div>`;
+}
+return h;
+}
+
+function openModal(type,editId){
+type=type||currentTab;
+document.getElementById("modalTitle").innerHTML=(editId?"Edit ":"Add ")+(type==="districts"?"District":type==="areas"?"Area":"Zeli Halqa");
+document.getElementById("editId").value=editId||"";
+document.getElementById("editType").value=type;
+document.getElementById("modalFields").innerHTML=getFields(type,editId);
+document.getElementById("modalOv").classList.add("open");
+}
+
+function closeModal(){document.getElementById("modalOv").classList.remove("open");}
+
+async function saveItem(){
+const type=document.getElementById("editType").value;
+const editId=document.getElementById("editId").value;
+const name=document.getElementById("fName").value.trim();
+if(!name){toast("Name required",true);return;}
+const code=document.getElementById("fCode").value;
+const base={name,code,createdBy:CU.id||CU.uid||"system",updatedAt:new Date().toISOString()};
+try{
+if(type==="districts"){
+const data={...base,headName:document.getElementById("fHeadName").value.trim(),headPhone:document.getElementById("fHeadPhone").value.trim()};
+if(editId){await db.collection("districts").doc(editId).update(data);}
+else{data.createdAt=new Date().toISOString();await db.collection("districts").add(data);}
+}else if(type==="areas"){
+const districtId=document.getElementById("fDistrict").value;
+if(!districtId){toast("Select district",true);return;}
+const dist=allDistricts.find(d=>d.id===districtId);
+const data={...base,districtId,districtName:dist?dist.name:"",headName:document.getElementById("fHeadName").value.trim(),headPhone:document.getElementById("fHeadPhone").value.trim()};
+if(editId){await db.collection("areas").doc(editId).update(data);}
+else{data.createdAt=new Date().toISOString();await db.collection("areas").add(data);}
+}else{
+const areaId=document.getElementById("fArea").value;
+if(!areaId){toast("Select area",true);return;}
+const area=allAreas.find(a=>a.id===areaId);
+const dist=area?allDistricts.find(d=>d.id===area.districtId):null;
+const data={...base,areaId,areaName:area?area.name:"",districtId:area?area.districtId:"",districtName:dist?dist.name:"",halqaHead:document.getElementById("fHeadName").value.trim(),headPhone:document.getElementById("fHeadPhone").value.trim(),imam:document.getElementById("fImam").value.trim(),imamPhone:document.getElementById("fImamPhone").value.trim(),address:document.getElementById("fAddress").value.trim()};
+if(editId){await db.collection("zeli_halqas").doc(editId).update(data);}
+else{data.createdAt=new Date().toISOString();await db.collection("zeli_halqas").add(data);}
+}
+closeModal();toast("Saved!");loadAll();
+}catch(e){toast("Error: "+e.message,true);}
+}
+
+window.onload=async()=>{if(!reqAuth())return;await loadAll();};
+</script>
+</body>
+</html>

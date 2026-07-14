@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Reports - TSP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1a6b3c;--primary-dark:#0d4a25;--primary-light:#e8f5e9;--danger:#dc3545;--warning:#ff9800;--success:#28a745;--bg:#f0f2f5;--card:#fff;--text:#333;--text-light:#666;--border:#e0e0e0;--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;max-width:500px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.menubtn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:8px}.hdr h1{font-size:18px;font-weight:700;flex:1}
+.content{padding:16px;padding-bottom:100px}
+.sbar-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200}
+.sbar{display:none;position:fixed;top:0;left:0;width:280px;height:100%;background:#fff;z-index:300;box-shadow:4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;border-radius:0 14px 14px 0}
+.sbar.open{display:block}
+.sbar-hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:20px;border-radius:0 14px 0 0}
+.sbar-hdr h2{font-size:16px;font-weight:700;margin-bottom:4px}.sbar-hdr p{font-size:12px;opacity:.8}
+.sbar-hdr .rbadge{background:rgba(255,255,255,.2);padding:3px 10px;border-radius:10px;font-size:11px;display:inline-block;margin-top:6px}
+.sbar-menu{padding:10px 0}
+.sbar-menu a{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--text);text-decoration:none;font-size:14px;font-weight:500;transition:all .2s}
+.sbar-menu a:hover,.sbar-menu a.active{background:var(--primary-light);color:var(--primary)}
+.sbar-menu a i{width:20px;text-align:center;font-size:16px}
+.sbar-ft{padding:15px 20px;border-top:1px solid var(--border);margin-top:10px}.sbar-ft p{font-size:10px;color:var(--text-light);text-align:center}
+.lbtn{display:flex;align-items:center;gap:10px;padding:12px 20px;color:var(--danger);text-decoration:none;font-size:14px;font-weight:600;border-top:1px solid var(--border);margin-top:10px}.lbtn i{width:20px;text-align:center}
+.tabs{display:flex;gap:4px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.tabs button{padding:8px 12px;border:none;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;background:#e0e0e0;color:var(--text)}
+.tabs button.active{background:var(--primary);color:#fff}
+.tab-content{display:none}.tab-content.active{display:block}
+.filters{background:#fff;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:14px}
+.filters h4{font-size:14px;font-weight:700;margin-bottom:10px}
+.fg{margin-bottom:10px}.fg label{font-size:12px;font-weight:600;display:block;margin-bottom:4px}
+.fg select,.fg input{width:100%;padding:8px;border:2px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:#f8f9fa}
+.fg select:focus,.fg input:focus{outline:none;border-color:var(--primary)}
+.fg-row{display:flex;gap:8px}.fg-row .fg{flex:1}
+.exp-btns{display:flex;gap:8px;margin-bottom:14px}
+.exp-btns button{flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-excel{background:var(--success);color:#fff}.btn-print{background:#1976d2;color:#fff}
+.stat-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.stat-mini{background:#fff;border-radius:10px;padding:10px;box-shadow:var(--shadow);text-align:center;flex:1;min-width:70px}
+.stat-mini h3{font-size:18px;font-weight:800;color:var(--primary)}.stat-mini p{font-size:10px;color:var(--text-light)}
+.rpt-item{background:#fff;border-radius:12px;padding:12px;box-shadow:var(--shadow);margin-bottom:8px;font-size:12px}
+.rpt-item h4{font-size:13px;font-weight:700;margin-bottom:4px}
+.rpt-item p{color:var(--text-light);line-height:1.4}
+.rpt-item .row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f5f5f5}
+.rpt-item .row:last-child{border-bottom:none}
+.rpt-item .row .k{color:var(--text-light)}.rpt-item .row .v{font-weight:600}
+.badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600}
+.badge.active{background:var(--primary-light);color:var(--primary)}.badge.inactive{background:#ffebee;color:var(--danger)}.badge.pending{background:#fff3e0;color:var(--warning)}
+.empty{text-align:center;padding:40px;color:var(--text-light)}.empty i{font-size:40px;color:var(--border);margin-bottom:10px;display:block}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--primary-dark);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:9999;display:none}.toast.err{background:var(--danger)}
+@media print{.hdr,.sbar,.sbar-ov,.tabs,.filters,.exp-btns,.toast{display:none!important}.content{padding:0!important;max-width:100%}body{max-width:100%}}
+</style>
+</head>
+<body>
+<div class="sbar-ov" id="sbarOv" onclick="closeSbar()"></div>
+<div class="sbar" id="sbar"><div class="sbar-hdr"><h2 id="sName">User</h2><p id="sPhone"></p><span class="rbadge" id="sRole"></span></div><div class="sbar-menu" id="sMenu"></div><a href="index.html" class="lbtn" onclick="localStorage.removeItem('currentUser')"><i class="fas fa-sign-out-alt"></i> Logout</a><div class="sbar-ft"><p><i class="fas fa-code"></i> A.A.Q. Solutions & Outsourcing</p></div></div>
+<header class="hdr"><button class="menubtn" onclick="openSbar()"><i class="fas fa-bars"></i></button><h1><i class="fas fa-chart-bar"></i> Reports</h1></header>
+<div class="content">
+<div class="tabs">
+<button class="active" onclick="switchTab('hierarchy')">Hierarchy</button>
+<button onclick="switchTab('persons')">Persons</button>
+<button onclick="switchTab('departments')">Departments</button>
+<button onclick="switchTab('vacancies')">Vacancies</button>
+<button onclick="switchTab('responsibilities')">Responsibilities</button>
+<button onclick="switchTab('transfers')">Transfers</button>
+<button onclick="switchTab('approvals')">Approvals</button>
+</div>
+<div class="filters">
+<h4><i class="fas fa-filter"></i> Filters</h4>
+<div class="fg-row"><div class="fg"><label>Date From</label><input type="date" id="fDateFrom"></div><div class="fg"><label>Date To</label><input type="date" id="fDateTo"></div></div>
+<div class="fg-row"><div class="fg"><label>District</label><select id="fDistrict"><option value="">All</option></select></div><div class="fg"><label>Status</label><select id="fStatus"><option value="">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div></div>
+<button class="btn-g" style="width:100%;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:#fff;background:var(--primary);margin-top:8px" onclick="applyFilters()"><i class="fas fa-search"></i> Apply Filters</button>
+</div>
+<div class="exp-btns">
+<button class="btn-excel" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+<button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+</div>
+<div class="tab-content active" id="tab-hierarchy"><div id="rptContent"></div></div>
+<div class="tab-content" id="tab-persons"><div id="rptPersons"></div></div>
+<div class="tab-content" id="tab-departments"><div id="rptDepts"></div></div>
+<div class="tab-content" id="tab-vacancies"><div id="rptVac"></div></div>
+<div class="tab-content" id="tab-responsibilities"><div id="rptResp"></div></div>
+<div class="tab-content" id="tab-transfers"><div id="rptTrans"></div></div>
+<div class="tab-content" id="tab-approvals"><div id="rptAppr"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const FC={apiKey:"AIzaSyBx7UCuhxtgXIKmh9ocGUN_MQktsIN610M",authDomain:"information-1d471.firebaseapp.com",projectId:"information-1d471",storageBucket:"information-1d471.appspot.com",messagingSenderId:"489310613218",appId:"1:489310613218:web:e44e61cf16d4b8c106729d"};
+if(!firebase.apps.length)firebase.initializeApp(FC);const db=firebase.firestore();let CU=null;
+let D=[],A=[],ZH=[],P=[],S=[],DEPT=[],DS=[],APPR=[],HIST=[];
+
+function reqAuth(){const u=JSON.parse(localStorage.getItem("currentUser")||"null");if(!u||!u.phone){window.location.href="index.html";return null;}CU=u;return u;}
+function openSbar(){if(!CU)return;document.getElementById("sName").textContent=CU.name||"User";document.getElementById("sPhone").textContent=CU.phone||"";document.getElementById("sRole").textContent=CU.role==="division_head"?"Division Head":CU.role==="district_head"?"District Head":CU.role==="area_head"?"Area Head":CU.role||"";document.getElementById("sMenu").innerHTML=`<a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a><a href="structure.html"><i class="fas fa-sitemap"></i> Tanzeemi Structure</a><a href="persons.html"><i class="fas fa-users"></i> People / Zimmedaran</a><a href="departments.html"><i class="fas fa-building"></i> Departments</a><a href="approvals.html"><i class="fas fa-check-double"></i> Approvals</a><a href="reports.html" class="active"><i class="fas fa-chart-bar"></i> Reports</a><a href="admin.html"><i class="fas fa-cog"></i> Admin & Settings</a>`;document.getElementById("sbar").classList.add("open");document.getElementById("sbarOv").style.display="block";}
+function closeSbar(){document.getElementById("sbar").classList.remove("open");document.getElementById("sbarOv").style.display="none";}
+function toast(m,e){const t=document.getElementById("toast");t.textContent=m;t.className=e?"toast err":"toast";t.style.display="block";setTimeout(()=>t.style.display="none",3000);}
+
+let currentTab="hierarchy";
+function switchTab(tab){
+currentTab=tab;
+document.querySelectorAll(".tabs button").forEach((b,i)=>b.classList.toggle("active",["hierarchy","persons","departments","vacancies","responsibilities","transfers","approvals"][i]===tab));
+document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+document.getElementById("tab-"+tab).classList.add("active");
+renderCurrentTab();
+}
+
+async function loadAll(){
+try{
+const[da,ar,zh,pe,ss,de,sa,ap,hh]=await Promise.all([
+db.collection("districts").get(),db.collection("areas").get(),db.collection("zeli_halqas").get(),
+db.collection("persons").get(),db.collection("dept_staff").get(),db.collection("departments").get(),
+db.collection("designations").get(),db.collection("approvals").get(),db.collection("person_history").get()
+]);
+D=[];da.forEach(d=>D.push({id:d.id,...d.data()}));A=[];ar.forEach(d=>A.push({id:d.id,...d.data()}));ZH=[];zh.forEach(d=>ZH.push({id:d.id,...d.data()}));
+P=[];pe.forEach(d=>P.push({id:d.id,...d.data()}));S=[];ss.forEach(d=>S.push({id:d.id,...d.data()}));DEPT=[];de.forEach(d=>DEPT.push({id:d.id,...d.data()}));
+DS=[];sa.forEach(d=>DS.push({id:d.id,...d.data()}));APPR=[];ap.forEach(d=>APPR.push({id:d.id,...d.data()}));HIST=[];hh.forEach(d=>HIST.push({id:d.id,...d.data()}));
+const sel=document.getElementById("fDistrict");sel.innerHTML='<option value="">All</option>'+D.map(d=>`<option value="${d.id}">${d.name}</option>`).join("");
+renderCurrentTab();
+}catch(e){console.error(e);}
+}
+
+function renderCurrentTab(){
+if(currentTab==="hierarchy")renderHierarchy();
+else if(currentTab==="persons")renderPersonRpt();
+else if(currentTab==="departments")renderDeptRpt();
+else if(currentTab==="vacancies")renderVacRpt();
+else if(currentTab==="responsibilities")renderRespRpt();
+else if(currentTab==="transfers")renderTransRpt();
+else if(currentTab==="approvals")renderApprRpt();
+}
+
+function renderHierarchy(){
+const c=document.getElementById("rptContent");
+c.innerHTML=`<div class="stat-row"><div class="stat-mini"><h3>${D.length}</h3><p>Districts</p></div><div class="stat-mini"><h3>${A.length}</h3><p>Areas</p></div><div class="stat-mini"><h3>${ZH.length}</h3><p>ZH</p></div><div class="stat-mini"><h3>${P.length}</h3><p>Persons</p></div></div>`+D.map(d=>{const dA=A.filter(a=>a.districtId===d.id);const dZH=ZH.filter(z=>dA.some(a=>a.id===z.areaId));return`<div class="rpt-item"><h4><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> ${d.name}</h4><p>${d.code||""} | Head: ${d.headName||"-"} ${d.headPhone?"| "+d.headPhone:""}</p>${dA.map(a=>{const aZH=ZH.filter(z=>z.areaId===a.id);return`<div style="padding-left:16px;margin-top:6px;border-left:2px solid var(--border)"><b>${a.name}</b> (${a.code||""}) | ${a.headName||"No Head"} | ${aZH.length} ZH${aZH.map(z=>`<div style="padding-left:12px;font-size:11px;color:var(--text-light)">- ${z.name} (${z.code||""}) | ${z.halqaHead||"No Head"}</div>`).join("")}</div>`;}).join("")}</div>`;}).join("");
+}
+
+function renderPersonRpt(){
+const c=document.getElementById("rptPersons");
+const active=P.filter(p=>p.status==="active").length,inactive=P.filter(p=>p.status==="inactive").length;
+c.innerHTML=`<div class="stat-row"><div class="stat-mini"><h3>${P.length}</h3><p>Total</p></div><div class="stat-mini" style="background:#e8f5e9"><h3>${active}</h3><p>Active</p></div><div class="stat-mini" style="background:#ffebee"><h3>${inactive}</h3><p>Inactive</p></div></div>`+P.map(p=>`<div class="rpt-item"><h4>${p.name||"Unnamed"}</h4><div class="row"><span class="k">Phone</span><span class="v">${p.phone||"-"}</span></div><div class="row"><span class="k">District</span><span class="v">${p.districtName||"-"}</span></div><div class="row"><span class="k">Department</span><span class="v">${p.department||"-"}</span></div><div class="row"><span class="k">Status</span><span class="v"><span class="badge ${p.status||"active"}">${(p.status||"active").toUpperCase()}</span></span></div></div>`).join("");
+}
+
+function renderDeptRpt(){
+const c=document.getElementById("rptDepts");
+c.innerHTML=DEPT.map(d=>{const st=S.filter(s=>s.deptId===d.id);const filled=st.filter(s=>s.personId).length;const pct=st.length>0?Math.round((filled/st.length)*100):0;
+return`<div class="rpt-item"><h4>${d.name}</h4><div class="row"><span class="k">Code</span><span class="v">${d.code||"-"}</span></div><div class="row"><span class="k">Head</span><span class="v">${d.headName||"Vacant"}</span></div><div class="row"><span class="k">Persons</span><span class="v">${st.length}</span></div><div class="row"><span class="k">Filled/Vacant</span><span class="v">${filled}/${st.length-filled}</span></div><div class="row"><span class="k">Coverage</span><span class="v">${pct}%</span></div></div>`;}).join("");
+}
+
+function renderVacRpt(){
+const vac=S.filter(s=>!s.personId);
+const c=document.getElementById("rptVac");
+if(!vac.length){c.innerHTML='<div class="empty"><i class="fas fa-user-minus"></i><p>No vacancies</p></div>';return;}
+c.innerHTML=vac.map(v=>{const dept=DEPT.find(d=>d.id===v.deptId);return`<div class="rpt-item"><h4>${dept?dept.name:""} - ${v.designation||"-"}</h4><div class="row"><span class="k">Level</span><span class="v">${v.level||"-"}</span></div><div class="row"><span class="k">Location</span><span class="v">${v.location||"-"}</span></div><div class="row"><span class="k">Reports To</span><span class="v">${v.reportsTo||"-"}</span></div></div>`;}).join("");
+}
+
+function renderRespRpt(){
+const c=document.getElementById("rptResp");
+c.innerHTML=S.filter(s=>s.personId).map(s=>{const p=P.find(x=>x.id===s.personId);const dept=DEPT.find(d=>d.id===s.deptId);return`<div class="rpt-item"><h4>${p?p.name:s.personName||"-"}</h4><div class="row"><span class="k">Dept</span><span class="v">${dept?dept.name:s.department||"-"}</span></div><div class="row"><span class="k">Designation</span><span class="v">${s.designation||"-"}</span></div><div class="row"><span class="k">Level</span><span class="v">${s.level||"-"}</span></div><div class="row"><span class="k">Type</span><span class="v">${s.type||"permanent"}</span></div><div class="row"><span class="k">From</span><span class="v">${s.fromDate||"-"}</span></div></div>`;}).join("")||'<div class="empty"><i class="fas fa-user-tie"></i><p>No responsibilities</p></div>';
+}
+
+function renderTransRpt(){
+const trans=HIST.filter(h=>h.type==="transfer");
+const c=document.getElementById("rptTrans");
+if(!trans.length){c.innerHTML='<div class="empty"><i class="fas fa-exchange-alt"></i><p>No transfers</p></div>';return;}
+c.innerHTML=trans.map(t=>`<div class="rpt-item"><h4>${t.personName||"-"}</h4><p>${t.description||""}</p><div class="row"><span class="k">Date</span><span class="v">${t.createdAt?new Date(t.createdAt).toLocaleDateString("en-GB"):"-"}</span></div></div>`).join("");
+}
+
+function renderApprRpt(){
+const c=document.getElementById("rptAppr");
+const pend=APPR.filter(a=>a.status==="pending").length,app=APPR.filter(a=>a.status==="approved").length,rej=APPR.filter(a=>a.status==="rejected").length;
+c.innerHTML=`<div class="stat-row"><div class="stat-mini"><h3>${APPR.length}</h3><p>Total</p></div><div class="stat-mini" style="background:#fff3e0"><h3>${pend}</h3><p>Pending</p></div><div class="stat-mini" style="background:#e8f5e9"><h3>${app}</h3><p>Approved</p></div><div class="stat-mini" style="background:#ffebee"><h3>${rej}</h3><p>Rejected</p></div></div>`+APPR.map(a=>`<div class="rpt-item"><h4>${a.requestNumber||a.id} - ${a.requestType||"-"}</h4><div class="row"><span class="k">By</span><span class="v">${a.requestedByName||"-"}</span></div><div class="row"><span class="k">Status</span><span class="v"><span class="badge ${a.status||"pending"}">${(a.status||"pending").toUpperCase()}</span></span></div><div class="row"><span class="k">Date</span><span class="v">${a.createdAt?new Date(a.createdAt).toLocaleDateString("en-GB"):"-"}</span></div></div>`).join("");
+}
+
+function applyFilters(){renderCurrentTab();toast("Filters applied");}
+
+function exportExcel(){
+let csv="";
+if(currentTab==="hierarchy")csv="District,Code,Head,Head Phone,Areas,ZH\n"+D.map(d=>{const dA=A.filter(a=>a.districtId===d.id);return`"${d.name}","${d.code||""}","${d.headName||""}","${d.headPhone||""}",${dA.length},${ZH.filter(z=>dA.some(a=>a.id===z.areaId)).length}`;}).join("\n");
+else if(currentTab==="persons")csv="Name,Phone,District,Department,Designation,Status\n"+P.map(p=>`"${p.name||""}","${p.phone||""}","${p.districtName||""}","${p.department||""}","${p.designation||""}","${p.status||""}"`).join("\n");
+else if(currentTab==="departments")csv="Name,Code,Head,Persons,Vacant\n"+DEPT.map(d=>{const st=S.filter(s=>s.deptId===d.id);return`"${d.name}","${d.code||""}","${d.headName||""}",${st.length},${st.filter(s=>!s.personId).length}`;}).join("\n");
+else csv="Data exported from TSP";
+const blob=new Blob([csv],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=currentTab+"_report.csv";a.click();toast("Excel downloaded!");
+}
+
+window.onload=async()=>{if(!reqAuth())return;await loadAll();};
+</script>
+</body>
+</html>

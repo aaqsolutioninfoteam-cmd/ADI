@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>People / Zimmedaran - TSP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1a6b3c;--primary-dark:#0d4a25;--primary-light:#e8f5e9;--danger:#dc3545;--warning:#ff9800;--success:#28a745;--bg:#f0f2f5;--card:#fff;--text:#333;--text-light:#666;--border:#e0e0e0;--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;max-width:500px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.menubtn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:8px}.hdr h1{font-size:18px;font-weight:700;flex:1}
+.content{padding:16px;padding-bottom:100px}
+.sbar-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200}
+.sbar{display:none;position:fixed;top:0;left:0;width:280px;height:100%;background:#fff;z-index:300;box-shadow:4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;border-radius:0 14px 14px 0}
+.sbar.open{display:block}
+.sbar-hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:20px;border-radius:0 14px 0 0}
+.sbar-hdr h2{font-size:16px;font-weight:700;margin-bottom:4px}.sbar-hdr p{font-size:12px;opacity:.8}
+.sbar-hdr .rbadge{background:rgba(255,255,255,.2);padding:3px 10px;border-radius:10px;font-size:11px;display:inline-block;margin-top:6px}
+.sbar-menu{padding:10px 0}
+.sbar-menu a{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--text);text-decoration:none;font-size:14px;font-weight:500;transition:all .2s}
+.sbar-menu a:hover,.sbar-menu a.active{background:var(--primary-light);color:var(--primary)}
+.sbar-menu a i{width:20px;text-align:center;font-size:16px}
+.sbar-ft{padding:15px 20px;border-top:1px solid var(--border);margin-top:10px}.sbar-ft p{font-size:10px;color:var(--text-light);text-align:center}
+.lbtn{display:flex;align-items:center;gap:10px;padding:12px 20px;color:var(--danger);text-decoration:none;font-size:14px;font-weight:600;border-top:1px solid var(--border);margin-top:10px}.lbtn i{width:20px;text-align:center}
+.tabs{display:flex;gap:4px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+.tabs button{padding:8px 14px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;background:#e0e0e0;color:var(--text)}
+.tabs button.active{background:var(--primary);color:#fff}
+.tab-content{display:none}.tab-content.active{display:block}
+.stat-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}
+.stat-mini{background:#fff;border-radius:12px;padding:12px;box-shadow:var(--shadow);text-align:center;min-width:80px;flex:1}
+.stat-mini h3{font-size:20px;font-weight:800}.stat-mini p{font-size:10px;color:var(--text-light)}
+.stat-mini.g h3{color:var(--success)}.stat-mini.r h3{color:var(--danger)}.stat-mini.o h3{color:var(--warning)}.stat-mini.b h3{color:#1976d2}.stat-mini.gr h3{color:var(--text-light)}
+.search{width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;margin-bottom:10px}
+.item{background:#fff;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.item:active{transform:scale(0.98)}
+.avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0;background:linear-gradient(135deg,var(--primary),var(--primary-dark))}
+.avatar.img{background-size:cover;background-position:center}
+.item .info{flex:1;min-width:0}.item .info h4{font-size:14px;font-weight:700}.item .info p{font-size:11px;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600}
+.badge.active{background:var(--primary-light);color:var(--primary)}.badge.inactive{background:#ffebee;color:var(--danger)}.badge.hold{background:#fff3e0;color:var(--warning)}.badge.transferred{background:#e3f2fd;color:#1976d2}.badge.left{background:#f5f5f5;color:var(--text-light)}
+.item .acts{display:flex;gap:4px}
+.item .acts button{width:30px;height:30px;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-edit{background:#e3f2fd;color:#1976d2}.btn-del{background:#ffebee;color:var(--danger)}
+.modal-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:400;align-items:flex-end;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius) var(--radius) 0 0;padding:24px 20px;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;animation:su .3s}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--primary-dark)}
+.fg{margin-bottom:12px}.fg label{font-size:13px;font-weight:600;display:block;margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px;border:2px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;background:#f8f9fa}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--primary);background:#fff}
+.fg-row{display:flex;gap:10px}.fg-row .fg{flex:1}
+.macts{display:flex;gap:10px;margin-top:16px}
+.macts button{flex:1;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-g{background:var(--primary);color:#fff}.btn-c{background:var(--border);color:var(--text)}
+.fbtn{position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:16px;background:var(--primary);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 15px rgba(26,107,60,0.4);z-index:50}
+.empty{text-align:center;padding:40px;color:var(--text-light)}.empty i{font-size:40px;color:var(--border);margin-bottom:10px;display:block}
+.detail{background:#fff;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.detail h3{font-size:16px;font-weight:700;color:var(--primary-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .lbl{color:var(--text-light);font-weight:500}.detail-row .val{font-weight:600;color:var(--text)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--primary-dark);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:9999;display:none}.toast.err{background:var(--danger)}
+</style>
+</head>
+<body>
+<div class="sbar-ov" id="sbarOv" onclick="closeSbar()"></div>
+<div class="sbar" id="sbar"><div class="sbar-hdr"><h2 id="sName">User</h2><p id="sPhone"></p><span class="rbadge" id="sRole"></span></div><div class="sbar-menu" id="sMenu"></div><a href="index.html" class="lbtn" onclick="localStorage.removeItem('currentUser')"><i class="fas fa-sign-out-alt"></i> Logout</a><div class="sbar-ft"><p><i class="fas fa-code"></i> A.A.Q. Solutions & Outsourcing</p></div></div>
+<header class="hdr"><button class="menubtn" onclick="openSbar()"><i class="fas fa-bars"></i></button><h1><i class="fas fa-users"></i> People / Zimmedaran</h1></header>
+<div class="content">
+<div class="tabs"><button class="active" onclick="switchTab('persons')"><i class="fas fa-users"></i> Persons</button><button onclick="switchTab('desig')"><i class="fas fa-id-badge"></i> Designations</button><button onclick="switchTab('resp')"><i class="fas fa-user-tie"></i> Responsibilities</button></div>
+<div class="tab-content active" id="tab-persons">
+<div class="stat-row" id="personStats"></div>
+<select class="search" id="filterStatus" onchange="renderPersons()"><option value="">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="hold">Hold</option><option value="transferred">Transferred</option><option value="left">Left</option></select>
+<input class="search" placeholder="Search persons..." id="personSearch" oninput="renderPersons()">
+<div id="personsList"></div>
+</div>
+<div class="tab-content" id="tab-desig">
+<input class="search" placeholder="Search designations..." oninput="renderDesig()">
+<div id="desigList"></div>
+</div>
+<div class="tab-content" id="tab-resp">
+<input class="search" placeholder="Search responsibilities..." oninput="renderResp()">
+<div id="respList"></div>
+</div>
+</div>
+<button class="fbtn" id="addBtn" onclick="openPersonModal()"><i class="fas fa-plus"></i></button>
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)closeModal()"><div class="modal" onclick="event.stopPropagation()"><h2 id="modalTitle">Add Person</h2><input type="hidden" id="editId"><div id="modalFields"></div><div class="macts"><button class="btn-c" onclick="closeModal()">Cancel</button><button class="btn-g" onclick="savePerson()"><i class="fas fa-save"></i> Save</button></div></div></div>
+<div class="modal-ov" id="detailModal" onclick="if(event.target===this)this.classList.remove('open')"><div class="modal" onclick="event.stopPropagation()"><div id="detailContent"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const FC={apiKey:"AIzaSyBx7UCuhxtgXIKmh9ocGUN_MQktsIN610M",authDomain:"information-1d471.firebaseapp.com",projectId:"information-1d471",storageBucket:"information-1d471.appspot.com",messagingSenderId:"489310613218",appId:"1:489310613218:web:e44e61cf16d4b8c106729d"};
+if(!firebase.apps.length)firebase.initializeApp(FC);const db=firebase.firestore();let CU=null;
+let allPersons=[],allDesig=[],allResp=[],allDistricts=[],allAreas=[],allZH=[],allDepts=[];
+
+function reqAuth(){const u=JSON.parse(localStorage.getItem("currentUser")||"null");if(!u||!u.phone){window.location.href="index.html";return null;}CU=u;return u;}
+function openSbar(){if(!CU)return;document.getElementById("sName").textContent=CU.name||"User";document.getElementById("sPhone").textContent=CU.phone||"";document.getElementById("sRole").textContent=CU.role==="division_head"?"Division Head":CU.role==="district_head"?"District Head":CU.role==="area_head"?"Area Head":CU.role||"";document.getElementById("sMenu").innerHTML=`<a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a><a href="structure.html"><i class="fas fa-sitemap"></i> Tanzeemi Structure</a><a href="persons.html" class="active"><i class="fas fa-users"></i> People / Zimmedaran</a><a href="departments.html"><i class="fas fa-building"></i> Departments</a><a href="approvals.html"><i class="fas fa-check-double"></i> Approvals</a><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a><a href="admin.html"><i class="fas fa-cog"></i> Admin & Settings</a>`;document.getElementById("sbar").classList.add("open");document.getElementById("sbarOv").style.display="block";}
+function closeSbar(){document.getElementById("sbar").classList.remove("open");document.getElementById("sbarOv").style.display="none";}
+function toast(m,e){const t=document.getElementById("toast");t.textContent=m;t.className=e?"toast err":"toast";t.style.display="block";setTimeout(()=>t.style.display="none",3000);}
+
+function switchTab(tab){
+document.querySelectorAll(".tabs button").forEach((b,i)=>{b.classList.toggle("active",["persons","desig","resp"][i]===tab);});
+document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+document.getElementById("tab-"+tab).classList.add("active");
+const btn=document.getElementById("addBtn");
+if(tab==="persons"){btn.style.display="flex";btn.onclick=openPersonModal;}
+else if(tab==="desig"){btn.style.display="flex";btn.onclick=openDesigModal;}
+else{btn.style.display="none";}
+}
+
+async function loadAll(){
+try{
+const[ps,ds,rs,dist,area,zh,dep]=await Promise.all([
+db.collection("persons").get(),db.collection("designations").get(),db.collection("dept_staff").get(),
+db.collection("districts").get(),db.collection("areas").get(),db.collection("zeli_halqas").get(),db.collection("departments").get()
+]);
+allPersons=[];ps.forEach(d=>allPersons.push({id:d.id,...d.data()}));
+allDesig=[];ds.forEach(d=>allDesig.push({id:d.id,...d.data()}));
+allResp=[];rs.forEach(d=>allResp.push({id:d.id,...d.data()}));
+allDistricts=[];dist.forEach(d=>allDistricts.push({id:d.id,...d.data()}));
+allAreas=[];area.forEach(d=>allAreas.push({id:d.id,...d.data()}));
+allZH=[];zh.forEach(d=>allZH.push({id:d.id,...d.data()}));
+allDepts=[];dep.forEach(d=>allDepts.push({id:d.id,...d.data()}));
+renderPersons();renderDesig();renderResp();renderStats();
+}catch(e){console.error(e);}
+}
+
+function renderStats(){
+const total=allPersons.length,active=allPersons.filter(p=>p.status==="active").length,inactive=allPersons.filter(p=>p.status==="inactive").length,hold=allPersons.filter(p=>p.status==="hold").length,trans=allPersons.filter(p=>p.status==="transferred").length,left=allPersons.filter(p=>p.status==="left").length;
+document.getElementById("personStats").innerHTML=`
+<div class="stat-mini"><h3>${total}</h3><p>Total</p></div>
+<div class="stat-mini g"><h3>${active}</h3><p>Active</p></div>
+<div class="stat-mini r"><h3>${inactive}</h3><p>Inactive</p></div>
+<div class="stat-mini o"><h3>${hold}</h3><p>Hold</p></div>
+<div class="stat-mini b"><h3>${trans}</h3><p>Transferred</p></div>
+<div class="stat-mini gr"><h3>${left}</h3><p>Left</p></div>`;
+}
+
+function renderPersons(){
+const q=(document.getElementById("personSearch").value||"").toLowerCase();
+const sf=document.getElementById("filterStatus").value;
+let list=allPersons;
+if(sf)list=list.filter(p=>p.status===sf);
+if(q)list=list.filter(p=>(p.name||"").toLowerCase().includes(q)||(p.phone||"").toLowerCase().includes(q)||(p.id||"").toLowerCase().includes(q));
+const c=document.getElementById("personsList");
+if(!list.length){c.innerHTML='<div class="empty"><i class="fas fa-users"></i><p>No persons found</p></div>';return;}
+c.innerHTML=list.map(p=>`<div class="item" onclick="showPerson('${p.id}')"><div class="avatar ${p.photo?"img":""}" ${p.photo?`style="background-image:url('${p.photo}')"`:``}><i class="fas fa-user"></i></div><div class="info"><h4>${p.name||"Unnamed"}</h4><p>${p.phone||"-"} | ${p.designation||"-"} | ${p.districtName||p.areaName||"-"}</p></div><span class="badge ${p.status||"active"}">${(p.status||"active").charAt(0).toUpperCase()+(p.status||"active").slice(1)}</span></div>`).join("");
+}
+
+function renderDesig(){
+const q=(event&&event.target?event.target.value:"").toLowerCase()||"";
+let list=allDesig;
+if(q)list=list.filter(d=>(d.name||"").toLowerCase().includes(q)||(d.code||"").toLowerCase().includes(q));
+const c=document.getElementById("desigList");
+if(!list.length){c.innerHTML='<div class="empty"><i class="fas fa-id-badge"></i><p>No designations</p></div>';return;}
+c.innerHTML=list.map(d=>`<div class="item"><div class="avatar" style="background:linear-gradient(135deg,#7b1fa2,#4a148c)"><i class="fas fa-id-badge"></i></div><div class="info"><h4>${d.name}</h4><p>${d.code||"-"} | ${d.level||"-"} | ${d.type||"-"}</p></div><div class="acts"><button class="btn-edit" onclick="openDesigModal('${d.id}')"><i class="fas fa-pen"></i></button></div></div>`).join("");
+}
+
+function renderResp(){
+const q=(event&&event.target?event.target.value:"").toLowerCase()||"";
+let list=allResp;
+if(q)list=list.filter(r=>(r.personName||"").toLowerCase().includes(q)||(r.department||"").toLowerCase().includes(q));
+const c=document.getElementById("respList");
+if(!list.length){c.innerHTML='<div class="empty"><i class="fas fa-user-tie"></i><p>No responsibilities</p></div>';return;}
+c.innerHTML=list.map(r=>`<div class="item"><div class="avatar" style="background:linear-gradient(135deg,var(--warning),#e65100)"><i class="fas fa-user-tie"></i></div><div class="info"><h4>${r.personName||"-"}</h4><p>${r.department||"-"} | ${r.designation||"-"} | ${r.level||"-"}</p></div><span class="badge ${r.status||"active"}">${r.status||"active"}</span></div>`).join("");
+}
+
+function showPerson(id){
+const p=allPersons.find(x=>x.id===id);if(!p)return;
+const resp=allResp.filter(r=>r.personId===id);
+document.getElementById("detailContent").innerHTML=`
+<h3 style="font-size:16px;font-weight:700;color:var(--primary-dark);margin-bottom:12px"><i class="fas fa-arrow-left" style="cursor:pointer" onclick="document.getElementById('detailModal').classList.remove('open')"></i> ${p.name||"Person"}</h3>
+<div class="detail-row"><span class="lbl">ID</span><span class="val">${p.code||p.id}</span></div>
+<div class="detail-row"><span class="lbl">Phone</span><span class="val">${p.phone||"-"}</span></div>
+${p.fatherName?`<div class="detail-row"><span class="lbl">Father</span><span class="val">${p.fatherName}</span></div>`:""}
+${p.email?`<div class="detail-row"><span class="lbl">Email</span><span class="val">${p.email}</span></div>`:""}
+<div class="detail-row"><span class="lbl">District</span><span class="val">${p.districtName||"-"}</span></div>
+<div class="detail-row"><span class="lbl">Area</span><span class="val">${p.areaName||"-"}</span></div>
+<div class="detail-row"><span class="lbl">Zeli Halqa</span><span class="val">${p.zhName||"-"}</span></div>
+<div class="detail-row"><span class="lbl">Department</span><span class="val">${p.department||"-"}</span></div>
+<div class="detail-row"><span class="lbl">Designation</span><span class="val">${p.designation||"-"}</span></div>
+<div class="detail-row"><span class="lbl">Reporting Head</span><span class="val">${p.reportingHead||"-"}</span></div>
+<div class="detail-row"><span class="lbl">Joining Date</span><span class="val">${p.joiningDate||"-"}</span></div>
+<div class="detail-row"><span class="lbl">Status</span><span class="val"><span class="badge ${p.status||"active"}">${(p.status||"active").toUpperCase()}</span></span></div>
+${resp.length?`<h4 style="margin-top:16px;font-size:14px;font-weight:700">Responsibilities</h4>`+resp.map(r=>`<div style="background:var(--primary-light);border-radius:10px;padding:10px;margin-top:8px;font-size:12px"><b>${r.department||"-"}</b> | ${r.designation||"-"} | ${r.level||"-"} | <span class="badge ${r.status||"active"}">${r.status||"active"}</span></div>`).join("")):""}
+<button class="btn-g" style="width:100%;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:16px;color:#fff" onclick="document.getElementById('detailModal').classList.remove('open');openPersonModal('${p.id}')"><i class="fas fa-pen"></i> Edit</button>
+<button class="btn-del" style="width:100%;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;background:#ffebee;color:var(--danger)" onclick="deletePerson('${p.id}')"><i class="fas fa-trash"></i> Delete</button>`;
+document.getElementById("detailModal").classList.add("open");
+}
+
+function openPersonModal(editId){
+const p=editId?allPersons.find(x=>x.id===editId):null;
+document.getElementById("modalTitle").innerHTML=editId?"Edit Person":"Add Person";
+document.getElementById("editId").value=editId||"";
+document.getElementById("modalFields").innerHTML=`
+<div class="fg-row"><div class="fg"><label>Full Name *</label><input id="fName" value="${p?p.name||"":""}"></div><div class="fg"><label>Father Name</label><input id="fFather" value="${p?p.fatherName||"":""}"></div></div>
+<div class="fg-row"><div class="fg"><label>Mobile *</label><input id="fPhone" value="${p?p.phone||"":""}" maxlength="10"></div><div class="fg"><label>Alt Mobile</label><input id="fAltPhone" value="${p?p.altPhone||"":""}" maxlength="10"></div></div>
+<div class="fg"><label>Email</label><input id="fEmail" type="email" value="${p?p.email||"":""}"></div>
+<div class="fg"><label>District</label><select id="fDistrict"><option value="">Select</option>${allDistricts.map(d=>`<option value="${d.id}" ${p&&p.districtId===d.id?"selected":""}>${d.name}</option>`).join("")}</select></div>
+<div class="fg"><label>Area</label><select id="fArea"><option value="">Select</option>${allAreas.map(a=>{const d=allDistricts.find(x=>x.id===a.districtId);return`<option value="${a.id}" ${p&&p.areaId===a.id?"selected":""}>${a.name} (${d?d.name:""})</option>`;}).join("")}</select></div>
+<div class="fg"><label>Zeli Halqa</label><select id="fZH"><option value="">Select</option>${allZH.map(z=>`<option value="${z.id}" ${p&&p.zhId===z.id?"selected":""}>${z.name}</option>`).join("")}</select></div>
+<div class="fg"><label>Department</label><select id="fDept"><option value="">Select</option>${allDepts.map(d=>`<option value="${d.id}" ${p&&p.deptId===d.id?"selected":""}>${d.name}</option>`).join("")}</select></div>
+<div class="fg"><label>Designation</label><select id="fDesig"><option value="">Select</option>${allDesig.map(d=>`<option value="${d.id}" ${p&&p.desigId===d.id?"selected":""}>${d.name}</option>`).join("")}</select></div>
+<div class="fg"><label>Reporting Head</label><input id="fHead" value="${p?p.reportingHead||"":""}"></div>
+<div class="fg-row"><div class="fg"><label>Joining Date</label><input id="fJoinDate" type="date" value="${p?p.joiningDate||"":""}"></div><div class="fg"><label>Status</label><select id="fStatus"><option value="active" ${p&&p.status==="active"?"selected":""}>Active</option><option value="inactive" ${p&&p.status==="inactive"?"selected":""}>Inactive</option><option value="hold" ${p&&p.status==="hold"?"selected":""}>Hold</option><option value="transferred" ${p&&p.status==="transferred"?"selected":""}>Transferred</option><option value="left" ${p&&p.status==="left"?"selected":""}>Left</option></select></div></div>
+<div class="fg"><label>Photo URL</label><input id="fPhoto" value="${p?p.photo||"":""}" placeholder="https://..."></div>
+<div class="fg"><label>Remarks</label><textarea id="fRemarks" rows="2">${p?p.remarks||"":""}</textarea></div>`;
+document.getElementById("modalOv").classList.add("open");
+}
+
+function closeModal(){document.getElementById("modalOv").classList.remove("open");}
+
+async function savePerson(){
+const editId=document.getElementById("editId").value;
+const name=document.getElementById("fName").value.trim();
+const phone=document.getElementById("fPhone").value.trim();
+if(!name||!phone){toast("Name aur Phone required",true);return;}
+const districtId=document.getElementById("fDistrict").value;
+const areaId=document.getElementById("fArea").value;
+const zhId=document.getElementById("fZH").value;
+const deptId=document.getElementById("fDept").value;
+const desigId=document.getElementById("fDesig").value;
+const dist=districtId?allDistricts.find(d=>d.id===districtId):null;
+const area=areaId?allAreas.find(a=>a.id===areaId):null;
+const zh=zhId?allZH.find(z=>z.id===zhId):null;
+const dept=deptId?allDepts.find(d=>d.id===deptId):null;
+const desig=desigId?allDesig.find(d=>d.id===desigId):null;
+const data={
+name,phone,
+fatherName:document.getElementById("fFather").value.trim(),
+altPhone:document.getElementById("fAltPhone").value.trim(),
+email:document.getElementById("fEmail").value.trim(),
+districtId,districtName:dist?dist.name:"",
+areaId,areaName:area?area.name:"",
+zhId,zhName:zh?zh.name:"",
+deptId,department:dept?dept.name:"",
+desigId,designation:desig?desig.name:"",
+reportingHead:document.getElementById("fHead").value.trim(),
+joiningDate:document.getElementById("fJoinDate").value,
+status:document.getElementById("fStatus").value,
+photo:document.getElementById("fPhoto").value.trim(),
+remarks:document.getElementById("fRemarks").value.trim(),
+updatedAt:new Date().toISOString()
+};
+try{
+if(editId){await db.collection("persons").doc(editId).update(data);}
+else{
+const code="P"+String(allPersons.length+1).padStart(4,"0");
+data.code=code;data.createdBy=CU.id||CU.uid||"system";data.createdAt=new Date().toISOString();
+await db.collection("persons").add(data);
+}
+closeModal();toast("Saved!");loadAll();
+}catch(e){toast("Error: "+e.message,true);}
+}
+
+async function deletePerson(id){if(!confirm("Delete this person?"))return;try{await db.collection("persons").doc(id).delete();document.getElementById("detailModal").classList.remove("open");toast("Deleted!");loadAll();}catch(e){toast("Error: "+e.message,true);}}
+
+function openDesigModal(editId){
+const d=editId?allDesig.find(x=>x.id===editId):null;
+document.getElementById("modalTitle").innerHTML=editId?"Edit Designation":"Add Designation";
+document.getElementById("editId").value=editId||"";
+document.getElementById("modalFields").innerHTML=`
+<div class="fg"><label>Name *</label><input id="fDesigName" value="${d?d.name||"":""}"></div>
+<div class="fg"><label>Code</label><input id="fDesigCode" value="${d?d.code:"DES"+String(allDesig.length+1).padStart(4,"0")}" readonly></div>
+<div class="fg"><label>Level</label><select id="fDesigLevel"><option value="division" ${d&&d.level==="division"?"selected":""}>Division</option><option value="district" ${d&&d.level==="district"?"selected":""}>District</option><option value="area" ${d&&d.level==="area"?"selected":""}>Area</option><option value="zeli_halqa" ${d&&d.level==="zeli_halqa"?"selected":""}>Zeli Halqa</option><option value="department" ${d&&d.level==="department"?"selected":""}>Department</option></select></div>
+<div class="fg"><label>Type</label><select id="fDesigType"><option value="head" ${d&&d.type==="head"?"selected":""}>Head</option><option value="assistant" ${d&&d.type==="assistant"?"selected":""}>Assistant Head</option><option value="coordinator" ${d&&d.type==="coordinator"?"selected":""}>Coordinator</option><option value="member" ${d&&d.type==="member"?"selected":""}>Member</option></select></div>`;
+document.getElementById("modalOv").classList.add("open");
+}
+
+async function savePerson(){
+const editId=document.getElementById("editId").value;
+if(document.getElementById("modalTitle").textContent.includes("Designation")){await saveDesig();return;}
+const name=document.getElementById("fName").value.trim(),phone=document.getElementById("fPhone").value.trim();
+if(!name||!phone){toast("Name aur Phone required",true);return;}
+const districtId=document.getElementById("fDistrict").value,areaId=document.getElementById("fArea").value,zhId=document.getElementById("fZH").value,deptId=document.getElementById("fDept").value,desigId=document.getElementById("fDesig").value;
+const dist=districtId?allDistricts.find(d=>d.id===districtId):null;const area=areaId?allAreas.find(a=>a.id===areaId):null;const zh=zhId?allZH.find(z=>z.id===zhId):null;const dept=deptId?allDepts.find(d=>d.id===deptId):null;const desig=desigId?allDesig.find(d=>d.id===desigId):null;
+const data={name,phone,fatherName:document.getElementById("fFather").value.trim(),altPhone:document.getElementById("fAltPhone").value.trim(),email:document.getElementById("fEmail").value.trim(),districtId,districtName:dist?dist.name:"",areaId,areaName:area?area.name:"",zhId,zhName:zh?zh.name:"",deptId,department:dept?dept.name:"",desigId,designation:desig?desig.name:"",reportingHead:document.getElementById("fHead").value.trim(),joiningDate:document.getElementById("fJoinDate").value,status:document.getElementById("fStatus").value,photo:document.getElementById("fPhoto").value.trim(),remarks:document.getElementById("fRemarks").value.trim(),updatedAt:new Date().toISOString()};
+try{if(editId){await db.collection("persons").doc(editId).update(data);}else{const code="P"+String(allPersons.length+1).padStart(4,"0");data.code=code;data.createdBy=CU.id||CU.uid||"system";data.createdAt=new Date().toISOString();await db.collection("persons").add(data);}closeModal();toast("Saved!");loadAll();}catch(e){toast("Error: "+e.message,true);}
+}
+
+async function saveDesig(){
+const editId=document.getElementById("editId").value;
+const name=document.getElementById("fDesigName").value.trim();
+if(!name){toast("Name required",true);return;}
+const data={name,code:document.getElementById("fDesigCode").value,level:document.getElementById("fDesigLevel").value,type:document.getElementById("fDesigType").value,updatedAt:new Date().toISOString()};
+try{if(editId){await db.collection("designations").doc(editId).update(data);}else{data.createdBy=CU.id||CU.uid||"system";data.createdAt=new Date().toISOString();await db.collection("designations").add(data);}closeModal();toast("Saved!");loadAll();}catch(e){toast("Error: "+e.message,true);}
+}
+
+window.onload=async()=>{if(!reqAuth())return;await loadAll();};
+</script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Admin & Settings - TSP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1a6b3c;--primary-dark:#0d4a25;--primary-light:#e8f5e9;--danger:#dc3545;--warning:#ff9800;--success:#28a745;--bg:#f0f2f5;--card:#fff;--text:#333;--text-light:#666;--border:#e0e0e0;--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;max-width:500px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.menubtn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:8px}.hdr h1{font-size:18px;font-weight:700;flex:1}
+.content{padding:16px;padding-bottom:100px}
+.sbar-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200}
+.sbar{display:none;position:fixed;top:0;left:0;width:280px;height:100%;background:#fff;z-index:300;box-shadow:4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;border-radius:0 14px 14px 0}
+.sbar.open{display:block}
+.sbar-hdr{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:20px;border-radius:0 14px 0 0}
+.sbar-hdr h2{font-size:16px;font-weight:700;margin-bottom:4px}.sbar-hdr p{font-size:12px;opacity:.8}
+.sbar-hdr .rbadge{background:rgba(255,255,255,.2);padding:3px 10px;border-radius:10px;font-size:11px;display:inline-block;margin-top:6px}
+.sbar-menu{padding:10px 0}
+.sbar-menu a{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--text);text-decoration:none;font-size:14px;font-weight:500;transition:all .2s}
+.sbar-menu a:hover,.sbar-menu a.active{background:var(--primary-light);color:var(--primary)}
+.sbar-menu a i{width:20px;text-align:center;font-size:16px}
+.sbar-ft{padding:15px 20px;border-top:1px solid var(--border);margin-top:10px}.sbar-ft p{font-size:10px;color:var(--text-light);text-align:center}
+.lbtn{display:flex;align-items:center;gap:10px;padding:12px 20px;color:var(--danger);text-decoration:none;font-size:14px;font-weight:600;border-top:1px solid var(--border);margin-top:10px}.lbtn i{width:20px;text-align:center}
+.tabs{display:flex;gap:4px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+.tabs button{padding:8px 12px;border:none;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;background:#e0e0e0;color:var(--text)}
+.tabs button.active{background:var(--primary);color:#fff}
+.tab-content{display:none}.tab-content.active{display:block}
+.search{width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;margin-bottom:14px}
+.item{background:#fff;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.item .ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0}
+.ic.g{background:linear-gradient(135deg,var(--primary),var(--primary-dark))}
+.ic.b{background:linear-gradient(135deg,#1976d2,#0d47a1)}
+.ic.p{background:linear-gradient(135deg,#7b1fa2,#4a148c)}
+.ic.o{background:linear-gradient(135deg,var(--warning),#e65100)}
+.item .info{flex:1;min-width:0}.item .info h4{font-size:14px;font-weight:700}.item .info p{font-size:11px;color:var(--text-light)}
+.item .acts{display:flex;gap:4px}
+.item .acts button{width:30px;height:30px;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-edit{background:#e3f2fd;color:#1976d2}.btn-del{background:#ffebee;color:var(--danger)}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600}
+.badge.active{background:var(--primary-light);color:var(--primary)}.badge.inactive{background:#ffebee;color:var(--danger)}
+.modal-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:400;align-items:flex-end;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius) var(--radius) 0 0;padding:24px 20px;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;animation:su .3s}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--primary-dark)}
+.fg{margin-bottom:12px}.fg label{font-size:13px;font-weight:600;display:block;margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px;border:2px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;background:#f8f9fa}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--primary);background:#fff}
+.fg-row{display:flex;gap:10px}.fg-row .fg{flex:1}
+.macts{display:flex;gap:10px;margin-top:16px}
+.macts button{flex:1;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-g{background:var(--primary);color:#fff}.btn-c{background:var(--border);color:var(--text)}
+.fbtn{position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:16px;background:var(--primary);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 15px rgba(26,107,60,0.4);z-index:50}
+.empty{text-align:center;padding:40px;color:var(--text-light)}.empty i{font-size:40px;color:var(--border);margin-bottom:10px;display:block}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--primary-dark);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:9999;display:none}.toast.err{background:var(--danger)}
+.switch{position:relative;width:48px;height:26px;display:inline-block}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:26px;transition:.3s}
+.switch .slider:before{content:'';position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.switch input:checked+.slider{background:var(--primary)}
+.switch input:checked+.slider:before{transform:translateX(22px)}
+.perm-grid{display:grid;grid-template-columns:auto repeat(6,1fr);gap:2px;font-size:10px}
+.perm-grid div{padding:4px;text-align:center;border:1px solid var(--border);border-radius:4px}
+.perm-grid .hdr{background:var(--primary-light);font-weight:700;color:var(--primary)}
+.perm-grid input{width:14px;height:14px}
+</style>
+</head>
+<body>
+<div class="sbar-ov" id="sbarOv" onclick="closeSbar()"></div>
+<div class="sbar" id="sbar"><div class="sbar-hdr"><h2 id="sName">User</h2><p id="sPhone"></p><span class="rbadge" id="sRole"></span></div><div class="sbar-menu" id="sMenu"></div><a href="index.html" class="lbtn" onclick="localStorage.removeItem('currentUser')"><i class="fas fa-sign-out-alt"></i> Logout</a><div class="sbar-ft"><p><i class="fas fa-code"></i> A.A.Q. Solutions & Outsourcing</p></div></div>
+<header class="hdr"><button class="menubtn" onclick="openSbar()"><i class="fas fa-bars"></i></button><h1><i class="fas fa-cog"></i> Admin & Settings</h1></header>
+<div class="content">
+<div class="tabs">
+<button class="active" onclick="switchTab('users')">Users</button>
+<button onclick="switchTab('roles')">Roles</button>
+<button onclick="switchTab('perms')">Permissions</button>
+<button onclick="switchTab('workflow')">Workflow</button>
+<button onclick="switchTab('maint')">Maintenance</button>
+<button onclick="switchTab('settings')">Settings</button>
+</div>
+<div class="tab-content active" id="tab-users">
+<input class="search" placeholder="Search users..." oninput="filterUsers()">
+<div id="userList"></div>
+</div>
+<div class="tab-content" id="tab-roles"><div id="roleList"></div></div>
+<div class="tab-content" id="tab-perms">
+<select class="search" id="permUser" onchange="loadPerms()"><option value="">Select User</option></select>
+<div id="permGrid"></div>
+</div>
+<div class="tab-content" id="tab-workflow"><div id="wfList"></div></div>
+<div class="tab-content" id="tab-maint">
+<div style="background:#fff;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)">
+<h4 style="margin-bottom:10px">Maintenance Mode</h4>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-size:14px">Enable Maintenance</span><label class="switch"><input type="checkbox" id="maintToggle" onchange="toggleMaint()"><span class="slider"></span></label></div>
+<div class="fg"><label>Maintenance Message</label><textarea id="maintMsg" rows="3" placeholder="System under maintenance..."></textarea></div>
+<div class="fg-row"><div class="fg"><label>Start</label><input type="datetime-local" id="maintStart"></div><div class="fg"><label>End</label><input type="datetime-local" id="maintEnd"></div></div>
+<button class="btn-g" style="width:100%;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;color:#fff" onclick="saveMaint()"><i class="fas fa-save"></i> Save</button>
+</div>
+</div>
+<div class="tab-content" id="tab-settings">
+<div style="background:#fff;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)">
+<div class="fg"><label>Portal Name</label><input id="sPortalName" value="Tanzeem Structure Portal"></div>
+<div class="fg"><label>Organization Name</label><input id="sOrgName" value=""></div>
+<div class="fg-row"><div class="fg"><label>Date Format</label><select id="sDateFormat"><option value="DD/MM/YYYY">DD/MM/YYYY</option><option value="MM/DD/YYYY">MM/DD/YYYY</option><option value="YYYY-MM-DD">YYYY-MM-DD</option></select></div><div class="fg"><label>Language</label><select id="sLang"><option value="en">English</option><option value="ur">Urdu</option></select></div></div>
+<div class="fg-row"><div class="fg"><label>Person ID Prefix</label><input id="sPPrefix" value="P"></div><div class="fg"><label>Request ID Prefix</label><input id="sRPrefix" value="REQ"></div></div>
+<button class="btn-g" style="width:100%;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;color:#fff;margin-top:10px" onclick="saveSysSettings()"><i class="fas fa-save"></i> Save Settings</button>
+</div>
+</div>
+</div>
+<button class="fbtn" id="addBtn" onclick="openUserModal()"><i class="fas fa-plus"></i></button>
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)closeModal()"><div class="modal" onclick="event.stopPropagation()"><h2 id="modalTitle">Add User</h2><input type="hidden" id="editId"><div id="modalFields"></div><div class="macts"><button class="btn-c" onclick="closeModal()">Cancel</button><button class="btn-g" onclick="saveUser()"><i class="fas fa-save"></i> Save</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const FC={apiKey:"AIzaSyBx7UCuhxtgXIKmh9ocGUN_MQktsIN610M",authDomain:"information-1d471.firebaseapp.com",projectId:"information-1d471",storageBucket:"information-1d471.appspot.com",messagingSenderId:"489310613218",appId:"1:489310613218:web:e44e61cf16d4b8c106729d"};
+if(!firebase.apps.length)firebase.initializeApp(FC);const db=firebase.firestore();let CU=null;
+let allUsers=[],allRoles=[],allPerms=[],allWF=[];
+
+function reqAuth(){const u=JSON.parse(localStorage.getItem("currentUser")||"null");if(!u||!u.phone){window.location.href="index.html";return null;}CU=u;return u;}
+function openSbar(){if(!CU)return;document.getElementById("sName").textContent=CU.name||"User";document.getElementById("sPhone").textContent=CU.phone||"";document.getElementById("sRole").textContent=CU.role==="division_head"?"Division Head":CU.role==="district_head"?"District Head":CU.role==="area_head"?"Area Head":CU.role||"";document.getElementById("sMenu").innerHTML=`<a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a><a href="structure.html"><i class="fas fa-sitemap"></i> Tanzeemi Structure</a><a href="persons.html"><i class="fas fa-users"></i> People / Zimmedaran</a><a href="departments.html"><i class="fas fa-building"></i> Departments</a><a href="approvals.html"><i class="fas fa-check-double"></i> Approvals</a><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a><a href="admin.html" class="active"><i class="fas fa-cog"></i> Admin & Settings</a>`;document.getElementById("sbar").classList.add("open");document.getElementById("sbarOv").style.display="block";}
+function closeSbar(){document.getElementById("sbar").classList.remove("open");document.getElementById("sbarOv").style.display="none";}
+function toast(m,e){const t=document.getElementById("toast");t.textContent=m;t.className=e?"toast err":"toast";t.style.display="block";setTimeout(()=>t.style.display="none",3000);}
+
+let currentTab="users";
+function switchTab(tab){
+currentTab=tab;
+document.querySelectorAll(".tabs button").forEach((b,i)=>b.classList.toggle("active",["users","roles","perms","workflow","maint","settings"][i]===tab));
+document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+document.getElementById("tab-"+tab).classList.add("active");
+document.getElementById("addBtn").style.display=(tab==="users"||tab==="roles"||tab==="workflow")?"flex":"none";
+if(tab==="users")document.getElementById("addBtn").onclick=openUserModal;
+else if(tab==="roles")document.getElementById("addBtn").onclick=openRoleModal;
+else if(tab==="workflow")document.getElementById("addBtn").onclick=openWFModal;
+}
+
+async function loadAll(){
+try{
+const[us,rs,ps,wf,ms]=await Promise.all([
+db.collection("users").get(),db.collection("roles").get(),db.collection("user_access").get(),
+db.collection("settings").where("key","==","workflows").get(),db.collection("settings").where("key","==","maintenance").get()
+]);
+allUsers=[];us.forEach(d=>allUsers.push({id:d.id,...d.data()}));
+allRoles=[];rs.forEach(d=>allRoles.push({id:d.id,...d.data()}));
+allPerms=[];ps.forEach(d=>allPerms.push({id:d.id,...d.data()}));
+allWF=[];wf.forEach(d=>allWF.push({id:d.id,...d.data()}));
+renderUsers();renderRoles();populatePermUsers();renderWF();
+if(!ms.empty){const md=ms.docs[0].data();document.getElementById("maintToggle").checked=md.active||false;document.getElementById("maintMsg").value=md.message||"";document.getElementById("maintStart").value=md.start||"";document.getElementById("maintEnd").value=md.end||"";}
+}catch(e){console.error(e);}
+}
+
+function renderUsers(){
+const c=document.getElementById("userList");
+c.innerHTML=allUsers.map(u=>`<div class="item"><div class="ic g"><i class="fas fa-user"></i></div><div class="info"><h4>${u.name||"-"}</h4><p>${u.phone||"-"} | ${u.role||"-"} | <span class="badge ${u.active!==false?"active":"inactive"}">${u.active!==false?"Active":"Inactive"}</span></p></div><div class="acts"><button class="btn-edit" onclick="openUserModal('${u.id}')"><i class="fas fa-pen"></i></button><button class="btn-del" onclick="deleteUser('${u.id}')"><i class="fas fa-trash"></i></button></div></div>`).join("");
+}
+
+function filterUsers(){
+const q=event.target.value.toLowerCase();
+const filtered=allUsers.filter(u=>(u.name||"").toLowerCase().includes(q)||(u.phone||"").toLowerCase().includes(q)||(u.role||"").toLowerCase().includes(q));
+document.getElementById("userList").innerHTML=filtered.map(u=>`<div class="item"><div class="ic g"><i class="fas fa-user"></i></div><div class="info"><h4>${u.name||"-"}</h4><p>${u.phone||"-"} | ${u.role||"-"}</p></div><div class="acts"><button class="btn-edit" onclick="openUserModal('${u.id}')"><i class="fas fa-pen"></i></button></div></div>`).join("");
+}
+
+function openUserModal(editId){
+const u=editId?allUsers.find(x=>x.id===editId):null;
+document.getElementById("modalTitle").textContent=editId?"Edit User":"Add User";
+document.getElementById("editId").value=editId||"";
+document.getElementById("modalFields").innerHTML=`
+<div class="fg"><label>Name *</label><input id="fName" value="${u?u.name||"":""}"></div>
+<div class="fg"><label>Phone *</label><input id="fPhone" value="${u?u.phone||"":""}" maxlength="10"></div>
+<div class="fg"><label>Password ${editId?"(leave blank to keep)":""}</label><input id="fPass" type="password" value="${u?u.password||"":""}"></div>
+<div class="fg"><label>Role</label><select id="fRole"><option value="division_head" ${u&&u.role==="division_head"?"selected":""}>Division Head</option><option value="district_head" ${u&&u.role==="district_head"?"selected":""}>District Head</option><option value="area_head" ${u&&u.role==="area_head"?"selected":""}>Area Head</option><option value="data_entry" ${u&&u.role==="data_entry"?"selected":""}>Data Entry</option><option value="viewer" ${u&&u.role==="viewer"?"selected":""}>Viewer</option></select></div>
+<div class="fg"><label>Level ID</label><input id="fLevelId" value="${u?u.levelId||"":""}" placeholder="Level ID"></div>`;
+document.getElementById("modalOv").classList.add("open");
+}
+
+function closeModal(){document.getElementById("modalOv").classList.remove("open");}
+
+async function saveUser(){
+const editId=document.getElementById("editId").value;
+const name=document.getElementById("fName").value.trim(),phone=document.getElementById("fPhone").value.trim();
+if(!name||!phone){toast("Name aur Phone required",true);return;}
+const data={name,phone,role:document.getElementById("fRole").value,levelId:document.getElementById("fLevelId").value.trim(),updatedAt:new Date().toISOString()};
+const pass=document.getElementById("fPass").value.trim();
+if(pass)data.password=pass;
+try{
+if(editId){await db.collection("users").doc(editId).update(data);}
+else{if(!pass){toast("Password required for new user",true);return;}data.password=pass;data.active=true;data.createdBy=CU.id||CU.uid||"system";data.createdAt=new Date().toISOString();await db.collection("users").add(data);}
+closeModal();toast("Saved!");loadAll();
+}catch(e){toast("Error: "+e.message,true);}
+}
+
+async function deleteUser(id){
+const u=allUsers.find(x=>x.id===id);
+if(u&&u.phone===CU.phone){toast("Cannot delete yourself!",true);return;}
+if(!confirm("Delete this user?"))return;
+try{await db.collection("users").doc(id).delete();toast("Deleted!");loadAll();}catch(e){toast("Error: "+e.message,true);}
+}
+
+function renderRoles(){
+const predefinedRoles=["Super Admin","Division Admin","Division Head","District Head","Area Head","Zeli Halqa Head","Department Head","Data Entry","Approver","Viewer"];
+const c=document.getElementById("roleList");
+c.innerHTML=allRoles.map(r=>`<div class="item"><div class="ic p"><i class="fas fa-user-tag"></i></div><div class="info"><h4>${r.name}</h4><p>${r.description||""} | Level: ${r.level||"-"}</p></div></div>`).join("")||predefinedRoles.map(r=>`<div class="item"><div class="ic p"><i class="fas fa-user-tag"></i></div><div class="info"><h4>${r}</h4><p>System role</p></div></div>`).join("");
+}
+
+function openRoleModal(){
+document.getElementById("modalTitle").textContent="Add Role";
+document.getElementById("editId").value="";
+document.getElementById("modalFields").innerHTML=`
+<div class="fg"><label>Role Name *</label><input id="fRoleName" placeholder="Role name"></div>
+<div class="fg"><label>Description</label><input id="fRoleDesc" placeholder="Description"></div>
+<div class="fg"><label>Level</label><select id="fRoleLevel"><option value="division">Division</option><option value="district">District</option><option value="area">Area</option><option value="zeli_halqa">Zeli Halqa</option><option value="department">Department</option></select></div>`;
+document.getElementById("modalOv").classList.add("open");
+}
+
+function populatePermUsers(){
+document.getElementById("permUser").innerHTML='<option value="">Select User</option>'+allUsers.map(u=>`<option value="${u.id}">${u.name} (${u.phone})</option>`).join("");
+}
+
+function loadPerms(){
+const userId=document.getElementById("permUser").value;
+const c=document.getElementById("permGrid");
+if(!userId){c.innerHTML='<div class="empty"><p>Select a user</p></div>';return;}
+const modules=["Dashboard","Structure","Persons","Depts","Approvals","Reports","Admin"];
+const actions=["View","Create","Edit","Delete","Approve","Export"];
+const existing=allPerms.find(p=>p.userId===userId);
+const perms=existing?existing.perms||{}:{};
+let h=`<div class="perm-grid"><div class="hdr">Module</div>`;
+actions.forEach(a=>{h+=`<div class="hdr">${a}</div>`;});
+modules.forEach(m=>{
+h+=`<div style="font-weight:600;text-align:left;padding:4px;font-size:11px">${m}</div>`;
+actions.forEach(a=>{
+const key=m.toLowerCase()+"_"+a.toLowerCase();
+h+=`<div><input type="checkbox" ${perms[key]?"checked":""} onchange="togglePerm('${userId}','${key}',this.checked)"></div>`;
+});
+});
+h+=`</div>`;
+c.innerHTML=h;
+}
+
+async function togglePerm(userId,key,value){
+try{
+const existing=allPerms.find(p=>p.userId===userId);
+if(existing){const perms=existing.perms||{};perms[key]=value;await db.collection("user_access").doc(existing.id).update({perms});}
+else{const perms={};perms[key]=value;await db.collection("user_access").add({userId,perms,createdBy:CU.id||CU.uid||"system",createdAt:new Date().toISOString()});}
+toast("Permission saved");
+}catch(e){toast("Error: "+e.message,true);}
+}
+
+function renderWF(){
+const c=document.getElementById("wfList");
+if(!allWF.length){
+const defaults=[
+{requestType:"Responsibility Assign",steps:[{step:1,role:"Reporting Head"},{step:2,role:"Department Head"},{step:3,role:"Final Approver",final:true}]},
+{requestType:"Head Change",steps:[{step:1,role:"District Head"},{step:2,role:"Division Head",final:true}]},
+{requestType:"Transfer Person",steps:[{step:1,role:"Reporting Head"},{step:2,role:"Division Head",final:true}]}
+];
+c.innerHTML=defaults.map(w=>`<div class="item"><div class="ic o"><i class="fas fa-project-diagram"></i></div><div class="info"><h4>${w.requestType}</h4><p>${w.steps.map(s=>s.step+": "+s.role+(s.final?" (Final)":"")).join(" -> ")}</p></div></div>`).join("");
+return;
+}
+c.innerHTML=allWF.map(w=>`<div class="item"><div class="ic o"><i class="fas fa-project-diagram"></i></div><div class="info"><h4>${w.requestType||"-"}</h4><p>${w.steps?w.steps.map(s=>s.step+": "+s.role+(s.final?" (Final)":"")).join(" -> "):"-"}</p></div></div>`).join("");
+}
+
+function openWFModal(){
+document.getElementById("modalTitle").textContent="Add Workflow";
+document.getElementById("editId").value="";
+document.getElementById("modalFields").innerHTML=`
+<div class="fg"><label>Request Type *</label><select id="fWFType"><option value="Responsibility Assign">Responsibility Assign</option><option value="Responsibility Change">Responsibility Change</option><option value="Head Change">Head Change</option><option value="Transfer Person">Transfer Person</option><option value="Status Change">Status Change</option><option value="Deactivate Person">Deactivate Person</option></select></div>
+<div class="fg"><label>Step 1 - Approver Role</label><input id="fWF1" placeholder="e.g. Reporting Head"></div>
+<div class="fg"><label>Step 2 - Approver Role</label><input id="fWF2" placeholder="e.g. Department Head"></div>
+<div class="fg"><label>Step 3 - Approver Role</label><input id="fWF3" placeholder="e.g. Division Head (Final)"></div>`;
+document.getElementById("modalOv").classList.add("open");
+}
+
+async function saveWF(){
+const type=document.getElementById("fWFType").value;
+const steps=[];
+const s1=document.getElementById("fWF1").value.trim();if(s1)steps.push({step:1,role:s1});
+const s2=document.getElementById("fWF2").value.trim();if(s2)steps.push({step:2,role:s2});
+const s3=document.getElementById("fWF3").value.trim();if(s3)steps.push({step:3,role:s3,final:true});
+if(!steps.length){toast("At least one step required",true);return;}
+try{await db.collection("settings").add({key:"workflows",requestType:type,steps,createdBy:CU.id||CU.uid||"system",createdAt:new Date().toISOString()});closeModal();toast("Workflow saved!");loadAll();}catch(e){toast("Error: "+e.message,true);}
+}
+
+async function toggleMaint(){
+const active=document.getElementById("maintToggle").checked;
+try{
+const snap=await db.collection("settings").where("key","==","maintenance").get();
+if(!snap.empty){await db.collection("settings").doc(snap.docs[0].id).update({active});}
+else{await db.collection("settings").add({key:"maintenance",active,message:document.getElementById("maintMsg").value,start:document.getElementById("maintStart").value,end:document.getElementById("maintEnd").value,createdBy:CU.id||CU.uid||"system",createdAt:new Date().toISOString()});}
+toast("Maintenance mode "+(active?"ON":"OFF"));
+}catch(e){toast("Error: "+e.message,true);}
+}
+
+async function saveMaint(){
+try{
+const data={key:"maintenance",active:document.getElementById("maintToggle").checked,message:document.getElementById("maintMsg").value,start:document.getElementById("maintStart").value,end:document.getElementById("maintEnd").value,updatedAt:new Date().toISOString()};
+const snap=await db.collection("settings").where("key","==","maintenance").get();
+if(!snap.empty){await db.collection("settings").doc(snap.docs[0].id).update(data);}
+else{data.createdBy=CU.id||CU.uid||"system";data.createdAt=new Date().toISOString();await db.collection("settings").add(data);}
+toast("Saved!");
+}catch(e){toast("Error: "+e.message,true);}
+}
+
+async function saveSysSettings(){
+const data={key:"systemSettings",portalName:document.getElementById("sPortalName").value,orgName:document.getElementById("sOrgName").value,dateFormat:document.getElementById("sDateFormat").value,language:document.getElementById("sLang").value,prefix:document.getElementById("sPPrefix").value,requestPrefix:document.getElementById("sRPrefix").value,updatedAt:new Date().toISOString()};
+try{
+const snap=await db.collection("settings").where("key","==","systemSettings").get();
+if(!snap.empty){await db.collection("settings").doc(snap.docs[0].id).update(data);}
+else{data.createdBy=CU.id||CU.uid||"system";data.createdAt=new Date().toISOString();await db.collection("settings").add(data);}
+toast("Settings saved!");
+}catch(e){toast("Error: "+e.message,true);}
+}
+
+window.onload=async()=>{if(!reqAuth())return;await loadAll();};
+</script>
+</body>
+</html>
